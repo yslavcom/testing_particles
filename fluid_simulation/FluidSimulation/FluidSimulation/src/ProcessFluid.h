@@ -1,6 +1,8 @@
 #pragma once
 
-#include <memory.h>
+#include <memory>
+#include <mutex>
+#include <algorithm>
 
 #include "Fluid.h"
 #include "Screen.h"
@@ -10,6 +12,8 @@ class ProcessFluid
 private:
 	int iter;
 	int N;
+
+	std::mutex mutex;
 
 	std::unique_ptr<Fluid> fluid;
 	std::shared_ptr<Screen> screen;
@@ -32,20 +36,21 @@ private:
 	void lin_solve(int b, float_val_array& x, float_val_array& x0, float a, float c)
 	{
 		float cRecip = 1.0 / c;
-		for (int m = 1; m < N - 1; m++) {
-			for (int j = 1; j < N - 1; j++) {
-				for (int i = 1; i < N - 1; i++) {
-					x[IX(i, j)] =
-						(x0[IX(i, j)]
-							+ a * (x[IX(i + 1, j)]
-								+ x[IX(i - 1, j)]
-								+ x[IX(i, j + 1)]
-								+ x[IX(i, j - 1)]
-								)) * cRecip;
-				}
+
+		for (int j = 1; j < N - 1; j++) 
+		{
+			for (int i = 1; i < N - 1; i++) 
+			{
+				x[IX(i, j)] =
+					(x0[IX(i, j)]
+						+ a * (x[IX(i + 1, j)]
+							+ x[IX(i - 1, j)]
+							+ x[IX(i, j + 1)]
+							+ x[IX(i, j - 1)]
+							)) * cRecip;
 			}
-			set_bnd(b, x);
 		}
+		set_bnd(b, x);
 	}
 
 	void set_bnd(int b, float_val_array& x)
@@ -77,46 +82,6 @@ private:
 		return x + y * N;
 	}
 
-public:
-
-	void addDensity(float x, float y, float amount)
-	{
-		auto index = IX(x, y);
-		fluid->density[index] += amount;
-	}
-
-	void addVelocity(float x, float y, float amountX, float amountY)
-	{
-		auto index = IX(x, y);
-		fluid->Vx[index] += amountX;
-		fluid->Vy[index] += amountY;
-	}
-
-	void step()
-	{
-		float visc = fluid->visc;
-		float diff = fluid->diff;
-		float dt = fluid->dt;
-		float_val_array& Vx = fluid->Vx;
-		float_val_array& Vy = fluid->Vy;
-		float_val_array& Vx0 = fluid->Vx0;
-		float_val_array& Vy0 = fluid->Vy0;
-		float_val_array& s = fluid->s;
-		float_val_array& density = fluid->density;
-
-		diffuse(1, Vx0, Vx, visc, dt);
-		diffuse(2, Vy0, Vy, visc, dt);
-
-		project(Vx0, Vy0, Vx, Vy);
-
-		advect(1, Vx, Vx0, Vx0, Vy0, dt);
-		advect(2, Vy, Vy0, Vx0, Vy0, dt);
-
-		project(Vx, Vy, Vx0, Vy0);
-
-		diffuse(0, s, density, diff, dt);
-		advect(0, density, s, Vx, Vy, dt);
-	}
 
 	void diffuse(int b, float_val_array& x, float_val_array& x0, float diff, float dt)
 	{
@@ -161,7 +126,7 @@ public:
 		float dty = dt * (N - 2);
 
 		float s0, s1, t0, t1;
-		float tmp1, tmp2,  x, y;
+		float tmp1, tmp2, x, y;
 
 		float Nfloat = N;
 		float ifloat, jfloat;
@@ -204,8 +169,58 @@ public:
 		set_bnd(b, d);
 	}
 
+
+public:
+
+	void addDensity(float x, float y, float amount)
+	{
+		std::lock_guard<std::mutex> lk(mutex);
+
+		auto index = IX(x, y);
+		fluid->density[index] += amount;
+	}
+
+	void addVelocity(float x, float y, float amountX, float amountY)
+	{
+		std::lock_guard<std::mutex> lk(mutex);
+
+		auto index = IX(x, y);
+		fluid->Vx[index] += amountX;
+		fluid->Vy[index] += amountY;
+	}
+
+	void step()
+	{
+		std::lock_guard<std::mutex> lk(mutex);
+
+		float visc = fluid->visc;
+		float diff = fluid->diff;
+		float dt = fluid->dt;
+		float_val_array& Vx = fluid->Vx;
+		float_val_array& Vy = fluid->Vy;
+		float_val_array& Vx0 = fluid->Vx0;
+		float_val_array& Vy0 = fluid->Vy0;
+		float_val_array& s = fluid->s;
+		float_val_array& density = fluid->density;
+
+		diffuse(1, Vx0, Vx, visc, dt);
+		diffuse(2, Vy0, Vy, visc, dt);
+
+		project(Vx0, Vy0, Vx, Vy);
+
+		advect(1, Vx, Vx0, Vx0, Vy0, dt);
+		advect(2, Vy, Vy0, Vx0, Vy0, dt);
+
+		project(Vx, Vy, Vx0, Vy0);
+
+		diffuse(0, s, density, diff, dt);
+		advect(0, density, s, Vx, Vy, dt);
+	}
+
 	void renderD(int scale)
 	{
+		std::lock_guard<std::mutex> lk(mutex);
+
 		for (int i = 0; i < N; i++)
 		{
 			for (int j = 0; j < N; j++)
@@ -214,18 +229,27 @@ public:
 				float y = j * scale;
 				float d = fluid->density[IX(i, j)];
 
-				//fill(d);
-				//noStroke();
-				//square(x, y, SCALE);
-
 				for (int xi = x; xi < x + scale; xi++)
 				{
 					for (int yi = y; yi < y + scale; yi++)
 					{
-						screen->setPixel(xi, yi, 255, d, d, d);
+						screen->setPixel(xi, yi, 255, d, d, 115);
 					}
 				}
 			}
 		}
 	}
+
+	void fadeD()
+	{
+		std::lock_guard<std::mutex> lk(mutex);
+
+		std::for_each(fluid->density.begin(), fluid->density.end(), [](auto& el) {
+			el = el - 0.1f; 
+			if (el < 0) { el = 0; }
+			else if (el > 255) { el = 255; }
+			}
+		);
+	}
+
 };
