@@ -9,7 +9,7 @@ namespace caveofprogramming
 	class Swarm
 	{
 	public:
-		const static int NPARTICLES = 5000;
+		const static int NPARTICLES = 20000;
 
 	private:
 		mutable std::array<std::shared_ptr<Particle>, NPARTICLES> m_pParticles;

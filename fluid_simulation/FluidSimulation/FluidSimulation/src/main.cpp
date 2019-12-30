@@ -11,6 +11,8 @@ https://www.youtube.com/watch?v=alhpH6ECFvQ
 https://www.mikeash.com/pyblog/fluid-simulation-for-dummies.html
 */
 
+int colour = 255;
+
 namespace
 {
 	const int N = 64;
@@ -29,15 +31,15 @@ namespace
 
 	void computeFluid(ProcessFluid& processFluid, bool& quit)
 	{
-		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-		processFluid.step();
-		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-		std::cout << "dt = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[ µs ]" << std::endl;
+		//std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+//	processFluid.step();
+		//std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+		//std::cout << "dt = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[ µs ]" << std::endl;
 	}
 
 	void drawFluid(ProcessFluid& processFluid, std::shared_ptr<Screen> screen)
 	{
-		processFluid.renderD(SCALE);
+		processFluid.renderD(SCALE, colour);
 		processFluid.fadeD();
 
 		//draw on screen
@@ -103,6 +105,7 @@ int main(int argc, char* args[])
 
 	while(!quit)
 	{
+		processFluid.step();
 		drawFluid(processFluid, screen);
 
 		//process events
@@ -132,7 +135,10 @@ int main(int argc, char* args[])
 				auto coord = std::get<Screen::coord>(is_event.value().second);
 				mouseDragged(processFluid, pmouseX, pmouseY, coord.x, coord.y, time_step);
 
-				std::cout << "drag mouse with left button down" << coord.x << "    " << coord.y << std::endl;
+				float rand_colour = rand() / RAND_MAX;
+				colour = (int)(255 * rand_colour);
+
+				std::cout << "drag mouse with left button down" << coord.x << "    " << coord.y << "    " << colour <<  std::endl;
 			}break;
 			}
 		}

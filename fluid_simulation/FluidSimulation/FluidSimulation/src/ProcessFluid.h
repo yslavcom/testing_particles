@@ -217,7 +217,7 @@ public:
 		advect(0, density, s, Vx, Vy, dt);
 	}
 
-	void renderD(int scale)
+	void renderD(int scale, int colour)
 	{
 		std::lock_guard<std::mutex> lk(mutex);
 
@@ -233,7 +233,7 @@ public:
 				{
 					for (int yi = y; yi < y + scale; yi++)
 					{
-						screen->setPixel(xi, yi, 255, d, d, 115);
+						screen->setPixel(xi, yi, 255, d, d, colour);
 					}
 				}
 			}

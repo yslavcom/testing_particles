@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\screen">
+      <UniqueIdentifier>{bdf2bef1-54fa-40e4-b8ad-55d39c741b62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\debug_log">
+      <UniqueIdentifier>{d6100c34-d5c0-44b5-b0ce-67add190c1bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\basic_shapes">
+      <UniqueIdentifier>{88ad9771-3afa-48ed-9b82-d88846e721a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\error_code">
+      <UniqueIdentifier>{3a42cb34-20a5-49a4-912a-ea9e52d4e57b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\audio.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\test_audio.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\screen\Screen.cpp">
+      <Filter>Source Files\screen</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Src\fft.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\audio.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\screen\Screen.h">
+      <Filter>Source Files\screen</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\debug_log\DebugLog.h">
+      <Filter>Source Files\debug_log</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\basic_shapes\BasicShapes.h">
+      <Filter>Source Files\basic_shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\error_code\ErrorCode.h">
+      <Filter>Source Files\error_code</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
