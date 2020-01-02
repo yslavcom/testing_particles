@@ -17,9 +17,6 @@ namespace TEST_SCREEN
 	class Screen
 	{
 	public:
-		const static int MAX_ALPHA_VALUE = SDL_ALPHA_OPAQUE;
-		const static int MAX_COLOR_VALUE = 255;
-
 		static int SCREEN_WIDTH;
 		static int SCREEN_HEIGHT;
 
@@ -46,6 +43,7 @@ namespace TEST_SCREEN
 			return { std::forward<decltype(pixel_2d_coord_norm)>(pixel_2d_coord_norm), Screen::SCREEN_WIDTH, Screen::SCREEN_HEIGHT };
 		}
 
+		void copy_to_screen_buf(const pixel_vec_2d& pixel_vec_2d);
 		void clear_render();
 		void update_from_pixel_buffer();
 		void present_render();
@@ -53,6 +51,7 @@ namespace TEST_SCREEN
 		void close();
 		void clear();
 		void boxBlur();
+
 	};
 
 	using screen_ptr = std::shared_ptr<Screen>;

@@ -4,6 +4,7 @@
 
 #include "ErrorCode.h"
 #include "screen.h"
+#include "BasicStructs.h"
 
 namespace BASIC_SHAPES_2D
 {
@@ -18,20 +19,10 @@ namespace BASIC_SHAPES_2D
 		BasicShapes operator=(const BasicShapes&) = delete;
 		BasicShapes operator=(const BasicShapes&&) = delete;
 
-		inline static ErrorCode set_pixel(pixel_vec_2d& pixel2d_buf, const pixel_2d_coord&& pixel_2d_coord, const rgb_color_normalized&& color, Uint8 alpha)
+		inline static ErrorCode set_pixel(pixel_vec_2d& pixel2d_buf, pixel_2d_coord&& pixel_2d_coord, rgb_color_normalized&& color, Uint8 alpha)
 		{
-			Uint32 colour = 0;
-
-			colour += alpha;
-			colour <<= 8;
-			colour += color.r;
-			colour <<= 8;
-			colour += color.g;
-			colour <<= 8;
-			colour += color.b;
-			//colour <<= 8;
-			//colour += alpha;
-
+			auto c = std::decay_t<decltype(color)>(color);
+			Uint32 colour = to_colour_word(std::forward<decltype(c)>(c), alpha);
 			if (!pixel2d_buf(std::forward<decltype(pixel_2d_coord)>(pixel_2d_coord), colour))
 			{
 				return ErrorCode::SET_PIXEL_OUT_OF_BOUNDS;;
@@ -57,7 +48,7 @@ namespace BASIC_SHAPES_2D
 		/*
 		Pass whole size coord and normalized color values to the function
 		*/
-		static inline ErrorCode draw_dot(const screen_ptr screen, pixel_vec_2d& pixel2d_buf, pixel_2d_coord&& coord, rgb_color_normalized&& color, float alpha)
+		static inline ErrorCode draw_dot_screen(const screen_ptr screen, pixel_vec_2d& pixel2d_buf, pixel_2d_coord&& coord, rgb_color_normalized&& color, float alpha)
 		{
 			return set_pixel(pixel2d_buf, 
 				std::forward<decltype(coord)>(coord),
@@ -65,9 +56,10 @@ namespace BASIC_SHAPES_2D
 				alpha);
 		}
 
-		static inline ErrorCode draw_line(screen_ptr screen, pixel_vec_2d& pixel2d_buf,  
+		static inline ErrorCode draw_line(screen_ptr screen, 
+			pixel_vec_2d& pixel2d_buf,  
 			pixel_2d_coord_normal && start, pixel_2d_coord_normal && end, 
-			rgb_color_normalized color)
+			rgb_color_normalized&& color)
 		{
 			/*
 			http://rosettacode.org/wiki/Xiaolin_Wu%27s_line_algorithm#C.2B.2B
@@ -78,22 +70,25 @@ namespace BASIC_SHAPES_2D
 			auto start_coord_screen = screen->convert_to_pixel_2d_coord(std::forward<decltype(start)>(start));
 			auto end_coord_screen = screen->convert_to_pixel_2d_coord(std::forward<decltype(end)>(end));
 
-			auto x0 = start.hor;
-			auto y0 = start.ver;
-			auto x1 = end.hor;
-			auto y1 = end.ver;
+			int x0 = start_coord_screen.hor;
+			int y0 = start_coord_screen.ver;
+			int x1 = end_coord_screen.hor;
+			int y1 = end_coord_screen.ver;
 
 			auto ipart = [](float x) -> int {return int(std::floor(x)); };
 			auto round = [](float x) -> float {return std::round(x); };
 			auto fpart = [](float x) -> float {return x - std::floor(x); };
 			auto rfpart = [=](float x) -> float {return 1 - fpart(x); };
 
-			auto plot = [=, &pixel2d_buf , &color](size_t x, size_t y, float brightness) mutable{
+			auto plot = [=, &pixel2d_buf, &color](size_t x, size_t y, float brightness) {
 
 				using namespace BASIC_SHAPES_2D;
 
 				auto coord = pixel_2d_coord{ x, y };
-				auto r = draw_dot(screen, pixel2d_buf, coord, std::forward<decltype(color)>(color), brightness);
+				auto r =  set_pixel(pixel2d_buf, 
+					std::forward<decltype(coord)>(coord),
+					std::forward<rgb_color_normalized>(color),
+					brightness);
 
 				//DebugLog::instance()->print("brightness = " + std::to_string(brightness));
 

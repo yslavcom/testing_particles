@@ -1,8 +1,12 @@
 #include <iostream>
+#include <algorithm>
+
 #include "Screen.h"
 
 namespace TEST_SCREEN
 {
+#define NO_BUFFER2 (1)
+
 	using namespace BASIC_SHAPES_2D;
 
 	template<typename Creator, typename Destructor, typename... Arguments>
@@ -51,15 +55,21 @@ namespace TEST_SCREEN
 	public:
 		renderer_ptr_t m_renderer;
 		std::unique_ptr<Uint32[]> m_buffer1;
+		size_t m_buffer_size_words;
+		size_t m_buffer_size_bytes;
+#if !NO_BUFFER2
 		std::unique_ptr<Uint32[]> m_buffer2;
+#endif
 
 	public:
 		ScreenResources() :
 			m_window(nullptr, nullptr),
 			m_renderer(nullptr, nullptr),
 			m_texture(nullptr, nullptr),
-			m_buffer1(nullptr),
-			m_buffer2(nullptr)
+			m_buffer1(nullptr)
+#if !NO_BUFFER2
+			, m_buffer2(nullptr)
+#endif
 		{}
 
 		ErrorCode init(int w, int h)
@@ -80,20 +90,20 @@ namespace TEST_SCREEN
 				SCREEN_WIDTH, SCREEN_HEIGHT
 			);
 
-			m_buffer1 = std::make_unique<Uint32[]>(SCREEN_WIDTH * SCREEN_HEIGHT);
+			m_buffer_size_words = SCREEN_WIDTH * SCREEN_HEIGHT;
+			m_buffer_size_bytes = m_buffer_size_words * sizeof(Uint32);
+			m_buffer1 = std::make_unique<Uint32[]>(m_buffer_size_words);
+#if !NO_BUFFER2
 			m_buffer2 = std::make_unique<Uint32[]>(SCREEN_WIDTH * SCREEN_HEIGHT);
+#endif
 
 			auto raw_buffer = m_buffer1.get();
-			memset(raw_buffer, 0, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Uint32));
+			memset(raw_buffer, 0, m_buffer_size_bytes);
+#if !NO_BUFFER2
 			raw_buffer = m_buffer2.get();
 			memset(raw_buffer, 0, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Uint32));
-
+#endif
 			return ErrorCode::OK;
-		}
-
-		inline void clear_render()
-		{
-			SDL_RenderClear(m_renderer.get());
 		}
 
 		inline void update_from_pixel_buffer()
@@ -123,10 +133,6 @@ namespace TEST_SCREEN
 #endif
 		}
 
-		inline void present_render()
-		{
-			SDL_RenderPresent(m_renderer.get());
-		}
 	};
 
 
@@ -162,9 +168,14 @@ namespace TEST_SCREEN
 		return screenResources->init(SCREEN_WIDTH, SCREEN_HEIGHT);
 	}
 
+	void Screen::copy_to_screen_buf(const pixel_vec_2d& pixel_vec_2d)
+	{
+		pixel_vec_2d.copy_to_plain_buf(screenResources->m_buffer1.get(), screenResources->m_buffer_size_bytes);
+	}
+
 	void Screen::clear_render()
 	{
-		screenResources->clear_render();
+		SDL_RenderClear(screenResources->m_renderer.get());
 	}
 
 	void Screen::update_from_pixel_buffer()
@@ -174,7 +185,7 @@ namespace TEST_SCREEN
 
 	void Screen::present_render()
 	{
-		screenResources->present_render();
+		SDL_RenderPresent(screenResources->m_renderer.get());
 	}
 
 	std::optional<std::pair<Screen::EventType, Screen::EventContainer>> Screen::processEvents()
@@ -223,8 +234,10 @@ namespace TEST_SCREEN
 
 	void Screen::clear()
 	{
-		memset(screenResources->m_buffer1.get(), 0, SCREEN_HEIGHT * SCREEN_WIDTH * sizeof(Uint32));
+		memset(screenResources->m_buffer1.get(), 0, screenResources->m_buffer_size_bytes);
+#if !NO_BUFFER2
 		memset(screenResources->m_buffer2.get(), 0, SCREEN_HEIGHT * SCREEN_WIDTH * sizeof(Uint32));
+#endif
 	}
 
 #if 0

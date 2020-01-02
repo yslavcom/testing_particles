@@ -14,20 +14,9 @@ namespace BASIC_EFFECTS
 	private:
 		ErrorCode setPixel(pixel_vec_2d& pixel2d_buf, const pixel_2d_coord&& coord, const rgb_color&& color)
 		{
-			Uint32 colour = 0;
-
 			auto alpha = 255;
-
-			colour += alpha;
-			colour <<= 8;
-			colour += color.r;
-			colour <<= 8;
-			colour += color.g;
-			colour <<= 8;
-			colour += color.b;
-			//colour <<= 8;
-			//colour += alpha;
-
+			auto c = std::decay_t<decltype(color)>(color);
+			Uint32 colour = to_colour_word(std::forward<decltype(c)>(c), alpha);
 			if (!pixel2d_buf(std::forward<decltype(coord)>(coord), colour))
 			{
 				return ErrorCode::SET_PIXEL_OUT_OF_BOUNDS;

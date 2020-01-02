@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#include <algorithm>
 #include <SDL.h>
 
 namespace BASIC_SHAPES_2D
@@ -22,6 +22,9 @@ namespace BASIC_SHAPES_2D
 		float b;
 
 		rgb_color_normalized():r(0), g(0), b(0)
+		{
+		}
+		rgb_color_normalized(float r, float g, float b) :r(r), g(g), b(b)
 		{
 		}
 		rgb_color_normalized(const colour_name& color)
@@ -138,26 +141,24 @@ namespace BASIC_SHAPES_2D
 
 	struct pixel_vec_2d
 	{
-		enum { HOR_AXIS_IDX = 0 };
-		enum { VER_AXIS_IDX = 1 };
-
 	private:
 		size_t m;
 		size_t n;
 
-	public:
-		std::vector<std::vector<Uint32>> vec;
+		std::unique_ptr<Uint32[]>ptr;
+		size_t size_in_bytes;
 
+	public:
 		pixel_vec_2d(size_t m, size_t n)
 			: m(m), n(n) {
-			vec[HOR_AXIS_IDX].reserve(m);
-			vec[VER_AXIS_IDX].reserve(n);
+			ptr = std::make_unique<Uint32[]>(m*n);
+			size_in_bytes = m * n * sizeof(Uint32);
 		}
 
 		pixel_vec_2d(int m, int n)
 			: m(m), n(n) {
-			vec[HOR_AXIS_IDX].reserve(m);
-			vec[VER_AXIS_IDX].reserve(n);
+			ptr = std::make_unique<Uint32[]>(m * n);
+			size_in_bytes = m * n * sizeof(Uint32);
 		}
 
 		inline size_t GET_WIDTH() const{
@@ -172,7 +173,7 @@ namespace BASIC_SHAPES_2D
 			if (coord.hor < m
 				&& coord.ver < n)
 			{
-				vec[coord.hor][coord.ver] = val;
+				ptr[m * coord.ver + coord.hor] = val;
 				return true;
 			}
 			return false;
@@ -183,11 +184,53 @@ namespace BASIC_SHAPES_2D
 			if (coord.hor < m
 				&& coord.ver < n)
 			{
-				return vec[coord.hor][coord.ver] ;
+				return ptr[m * coord.ver + coord.hor];
 			}
 			return 0;
 		}
+
+		bool copy_to_plain_buf(Uint32* ptr, size_t buffer_size_bytes) const
+		{
+			if (nullptr == ptr)return false;
+			
+			auto copy_size = std::min(buffer_size_bytes, size_in_bytes);
+			SDL_memcpy(ptr, this->ptr.get(), copy_size);
+
+			return true;
+		}
 	};
 
+
+	const static int MAX_ALPHA_VALUE = SDL_ALPHA_OPAQUE;
+	const static int MAX_COLOR_VALUE = 255;
+	static Uint32 to_colour_word(rgb_color&& color, Uint8 alpha)
+	{
+		Uint32 colour = 0;
+
+		colour += alpha;
+		colour <<= 8;
+		colour += color.r;
+		colour <<= 8;
+		colour += color.g;
+		colour <<= 8;
+		colour += color.b;
+
+		return colour;
+	}
+
+	static Uint32 to_colour_word(rgb_color_normalized&& color, Uint8 alpha)
+	{
+		Uint32 colour = 0;
+
+		colour += alpha;
+		colour <<= 8;
+		colour += (color.r * MAX_COLOR_VALUE);
+		colour <<= 8;
+		colour += (color.g * MAX_COLOR_VALUE);
+		colour <<= 8;
+		colour += (color.b * MAX_COLOR_VALUE);
+
+		return colour;
+	}
 }
 
