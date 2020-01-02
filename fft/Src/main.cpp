@@ -2,11 +2,14 @@
 
 #include "fft.h"
 #include "audio.h"
-#include "screen/screen.h"
-#include "basic_shapes/BasicShapes.h"
-#include "debug_log/DebugLog.h"
+#include "screen.h"
+#include "BasicShapes.h"
+#include "DebugLog.h"
+#include "Grid.h"
+#include "Effect.h"
 
 using namespace TEST_SCREEN;
+using namespace BASIC_SHAPES_2D;
 
 int main(int argc, char* args[])
 {
@@ -17,12 +20,13 @@ int main(int argc, char* args[])
 	screen->init(800, 600);
 	screen->clear();
 
+	Grid grid;
 
 	for (; quit == false;)
 	{
-#if 0
+#if 1
 		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-		BasicShapes<>::draw_line(screen, { 0.5, 0.5 }, { x, y }, 0, 1, 0);
+		//BasicShapes<>::draw_line(screen, { 0.5, 0.5 }, { 0.5, 0.7 }, 0, 1, 0);
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 	//	DebugLog::instance()->print("dt = " + std::to_string(std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()) + "[ us ]");
 #endif

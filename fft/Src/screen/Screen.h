@@ -7,10 +7,13 @@
 #include <SDL.h>
 
 #include "ErrorCode.h"
-#include "../debug_log/DebugLog.h"
+#include "DebugLog.h"
+#include "BasicStructs.h"
 
 namespace TEST_SCREEN
 {
+	using namespace BASIC_SHAPES_2D;
+
 	class Screen
 	{
 	public:
@@ -27,69 +30,22 @@ namespace TEST_SCREEN
 			Quit, // quit app event
 		};
 
-		struct coord
-		{
-			int x;
-			int y;
-
-			coord() :x(0), y(0)
-			{}
-
-
-			coord(float x, float y)
-				:x(static_cast<int>(x* SCREEN_WIDTH)),
-				y(static_cast<int>(y* SCREEN_HEIGHT))
-			{}
-
-			coord(int x, int y)
-				:x(x),
-				y(y)
-			{}
-		};
-
-		struct color
-		{
-			int r;
-			int g;
-			int b;
-
-			color(float r, float g, float b)
-				:r(static_cast<int>(r* MAX_COLOR_VALUE)),
-				g(static_cast<int>(g* MAX_COLOR_VALUE)),
-				b(static_cast<int>(b* MAX_COLOR_VALUE))
-			{}
-
-			color(int r, int g, int b)
-				:r(r),
-				g(g),
-				b(b)
-			{}
-		};
-
-		using EventContainer = std::variant<coord, std::monostate>;
+		using EventContainer = std::variant<pixel_2d_coord, std::monostate>;
 
 	private:
 		class ScreenResources;
 		std::unique_ptr<ScreenResources> screenResources;
 
-		inline bool validate_screen_bounds(const Screen::coord&& coord)
-		{
-			if (coord.x < 0
-				|| coord.x >= Screen::SCREEN_WIDTH
-				|| coord.y < 0
-				|| coord.y >= Screen::SCREEN_HEIGHT) {
-				//std::cerr << "Warning: this check is not time efficient" << std::endl;
-				return false;
-			}
-
-			return true;
-		}
-
 	public:
 		Screen();
 		virtual ~Screen();
 		ErrorCode init(int w, int h);
-		ErrorCode setPixel(const Screen::coord&& coord, Uint8 alpha, const Screen::color&& color);
+
+		static inline pixel_2d_coord convert_to_pixel_2d_coord(pixel_2d_coord_normal&& pixel_2d_coord_norm)
+		{
+			return { std::forward<decltype(pixel_2d_coord_norm)>(pixel_2d_coord_norm), Screen::SCREEN_WIDTH, Screen::SCREEN_HEIGHT };
+		}
+
 		void clear_render();
 		void update_from_pixel_buffer();
 		void present_render();

@@ -25,6 +25,15 @@
     <Filter Include="Source Files\error_code">
       <UniqueIdentifier>{3a42cb34-20a5-49a4-912a-ea9e52d4e57b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\grid">
+      <UniqueIdentifier>{f2fc1e82-418e-4c4b-bd99-01dd40a95029}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\basic_structs">
+      <UniqueIdentifier>{97778979-76f8-4aa1-82db-d6edbe2ea79b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\effect">
+      <UniqueIdentifier>{327f316f-b7f3-41c4-b356-675a865ba62a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\main.cpp">
@@ -58,6 +67,15 @@
     </ClInclude>
     <ClInclude Include="Src\error_code\ErrorCode.h">
       <Filter>Source Files\error_code</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\grid\Grid.h">
+      <Filter>Source Files\grid</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\basic_structs\BasicStructs.h">
+      <Filter>Source Files\basic_structs</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\effect\Effect.h">
+      <Filter>Source Files\effect</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

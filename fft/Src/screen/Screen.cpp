@@ -3,6 +3,8 @@
 
 namespace TEST_SCREEN
 {
+	using namespace BASIC_SHAPES_2D;
+
 	template<typename Creator, typename Destructor, typename... Arguments>
 	auto make_resource(Creator c, Destructor d, Arguments&&... args)
 	{
@@ -45,9 +47,6 @@ namespace TEST_SCREEN
 
 		window_ptr_t m_window;
 		texture_ptr_t m_texture;
-
-		int SCREEN_WIDTH;
-		int SCREEN_HEIGHT;
 
 	public:
 		renderer_ptr_t m_renderer;
@@ -163,32 +162,6 @@ namespace TEST_SCREEN
 		return screenResources->init(SCREEN_WIDTH, SCREEN_HEIGHT);
 	}
 
-	ErrorCode Screen::setPixel(const Screen::coord&& coord, Uint8 alpha, const Screen::color&& color)
-	{
-		if (!validate_screen_bounds(std::forward<const Screen::coord>(coord)))
-		{
-			return ErrorCode::SET_PIXEL_OUT_OF_BOUNDS;
-		}
-
-		Uint32 colour = 0;
-
-		colour += alpha;
-		colour <<= 8;
-		colour += color.r;
-		colour <<= 8;
-		colour += color.g;
-		colour <<= 8;
-		colour += color.b;
-		//colour <<= 8;
-		//colour += alpha;
-		
-
-		auto index = (coord.y * SCREEN_WIDTH) + coord.x;
-		auto raw_ptr = screenResources->m_buffer1.get() + index;
-		*raw_ptr = colour;
-		return ErrorCode::OK;
-	}
-
 	void Screen::clear_render()
 	{
 		screenResources->clear_render();
@@ -220,9 +193,9 @@ namespace TEST_SCREEN
 			{
 				if (SDL_BUTTON(SDL_BUTTON_LEFT) == event.button.button)
 				{
-					coord coord;
-					coord.x = event.button.x;
-					coord.y = event.button.y;
+					pixel_2d_coord coord;
+					coord.hor = event.button.x;
+					coord.ver = event.button.y;
 					return std::make_pair<EventType, EventContainer>(Screen::EventType::LeftMouseDown, coord);
 				}
 			}break;
@@ -231,9 +204,9 @@ namespace TEST_SCREEN
 			{
 				if (SDL_BUTTON_LMASK & event.motion.state)
 				{
-					coord coord;
-					coord.x = event.motion.x;
-					coord.y = event.motion.y;
+					pixel_2d_coord coord;
+					coord.hor = event.motion.x;
+					coord.ver = event.motion.y;
 					return std::make_pair<EventType, EventContainer>(Screen::EventType::MouseDragging, coord);
 				}
 			}
@@ -254,6 +227,7 @@ namespace TEST_SCREEN
 		memset(screenResources->m_buffer2.get(), 0, SCREEN_HEIGHT * SCREEN_WIDTH * sizeof(Uint32));
 	}
 
+#if 0
 	void Screen::boxBlur()
 	{
 		std::swap(screenResources->m_buffer1, screenResources->m_buffer2);
@@ -298,4 +272,5 @@ namespace TEST_SCREEN
 			}
 		}
 	}
+#endif
 }
