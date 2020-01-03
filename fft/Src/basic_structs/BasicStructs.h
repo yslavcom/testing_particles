@@ -129,11 +129,11 @@ namespace BASIC_SHAPES_2D
 		{}
 
 		pixel_2d_coord(const pixel_2d_coord_normal && normalized, size_t width, size_t height)
-			:hor(static_cast<size_t>(normalized.hor * width)), ver(static_cast<size_t>(normalized.ver * width))
+			:hor(static_cast<size_t>(normalized.hor * width)), ver(static_cast<size_t>(normalized.ver * height))
 		{}
 
 		pixel_2d_coord(const pixel_2d_coord_normal&& normalized, int width, int height)
-			:hor(static_cast<size_t>(normalized.hor* width)), ver(static_cast<size_t>(normalized.ver* width))
+			:hor(static_cast<size_t>(normalized.hor* width)), ver(static_cast<size_t>(normalized.ver* height))
 		{}
 	};
 
