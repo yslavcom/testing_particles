@@ -43,6 +43,19 @@ namespace TEST_SCREEN
 			return { std::forward<decltype(pixel_2d_coord_norm)>(pixel_2d_coord_norm), Screen::SCREEN_WIDTH, Screen::SCREEN_HEIGHT };
 		}
 
+		static inline size_t convert_normalized_len_to_screen_len(float len, float tangent)
+		{
+			double tan = static_cast<double>(tangent);
+			double cosine = 1.0 / std::sqrt(1.0 + tan * tan); // we do not care about sign in this case
+			double sine = std::sqrt(1.0 - cosine * cosine); // we do not care about sign in this case
+
+			auto x = Screen::SCREEN_WIDTH * cosine;
+			auto y = Screen::SCREEN_HEIGHT * sine;
+			auto d = std::sqrt((x * x) + (y * y));
+
+			return static_cast<size_t>(std::ceil(len * d));
+		}
+
 		void copy_to_screen_buf(const pixel_vec_2d& pixel_vec_2d);
 		void clear_render();
 		void update_from_pixel_buffer();

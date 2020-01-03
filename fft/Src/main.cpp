@@ -5,8 +5,9 @@
 #include "screen.h"
 #include "BasicShapes.h"
 #include "DebugLog.h"
-#include "Grid.h"
 #include "Effect.h"
+#include "Grid.h"
+#include "Axis.h"
 
 using namespace TEST_SCREEN;
 using namespace BASIC_SHAPES_2D;
@@ -21,17 +22,23 @@ int main(int argc, char* args[])
 	screen->clear();
 
 	Grid grid;
+	Axis x;
+	Axis y;
 
 #if 1
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-	pixel_vec_2d pixel_vec_2d(screen->SCREEN_WIDTH, screen->SCREEN_HEIGHT);
-	BasicShapes::draw_line(screen, pixel_vec_2d, { 0.4, 0.4 }, { 0.4, 0.7 }, { colour_name::RED });
-	BasicShapes::draw_line(screen, pixel_vec_2d, { 0.4, 0.4 }, { 0.7, 0.4 }, { colour_name::GREEN });
-	BasicShapes::draw_line(screen, pixel_vec_2d, { 0.2, 0.5 }, { 0.8, 0.5 }, { colour_name::BLUE });
-	BasicShapes::draw_line(screen, pixel_vec_2d, { 0.5, 0.2 }, { 0.5, 0.4 }, { colour_name::WHITE });
-	BasicShapes::draw_dot(screen, pixel_vec_2d, { 0.35, 0.35 }, { 0.5, 0.5, 1 }, 255);
-	BasicShapes::draw_line(screen, pixel_vec_2d, { 0.11, 0.2 }, { 0.6, 0.95 }, { 0.1, 0.4, 0.4 });
-	screen->copy_to_screen_buf(pixel_vec_2d);
+	pixel_vec_2d pixel2d_buf(screen->SCREEN_WIDTH, screen->SCREEN_HEIGHT);
+	BasicShapes::draw_dash_line(screen, pixel2d_buf, { 0.4, 0.4 }, { 0.4, 0.7 }, { colour_name::RED }, 0.05, 0.2);
+	BasicShapes::draw_line(screen, pixel2d_buf, { 0.4, 0.4 }, { 0.7, 0.4 }, { colour_name::GREEN });
+	BasicShapes::draw_line(screen, pixel2d_buf, { 0.2, 0.5 }, { 0.8, 0.5 }, { colour_name::BLUE });
+	BasicShapes::draw_line(screen, pixel2d_buf, { 0.5, 0.2 }, { 0.5, 0.4 }, { colour_name::WHITE });
+	BasicShapes::draw_dot(screen, pixel2d_buf, { 0.35, 0.35 }, { 0.5, 0.5, 1 }, 255);
+	BasicShapes::draw_line(screen, pixel2d_buf, { 0.11, 0.2 }, { 0.6, 0.95 }, { 0.1, 0.4, 0.4 });
+	BasicShapes::draw_dash_line(screen, pixel2d_buf, { 0.11, 0.2 }, { 0.91, 0.61}, { colour_name::WHITE }, 0.1, 0.1);
+	BasicShapes::draw_dash_line(screen, pixel2d_buf, { 0.1, 0.1 }, { 0.9, 0.9 }, { colour_name::GREEN }, 0.25, 0.25);
+	BasicShapes::draw_dash_line(screen, pixel2d_buf, { 0.1, 0.1 }, { 0.9, 0.1 }, { colour_name::GREEN }, 0.25, 0.25);
+	BasicShapes::draw_dash_line(screen, pixel2d_buf, { 0.1, 0.1 }, { 0.1, 0.9 }, { colour_name::GREEN }, 0.1, 0.01);
+	screen->copy_to_screen_buf(pixel2d_buf);
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 	DebugLog::instance()->print("dt = " + std::to_string(std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()) + "[ us ]");
 #endif

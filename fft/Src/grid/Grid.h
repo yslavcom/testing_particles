@@ -32,12 +32,12 @@ namespace BASIC_SHAPES_2D
 		Grid() :
 			m_hor_square_count(10)
 			, m_vert_square_count(10)
-			, m_hor_low_limit(0)
-			, m_hor_hgh_limit(0)
-			, m_vert_low_limit(0)
-			, m_vert_hgh_limit(0)
-			, m_hor_spacing(0.01)
-			, m_vert_spacing(0.01)
+			, m_hor_low_limit(0.02)
+			, m_hor_hgh_limit(0.98)
+			, m_vert_low_limit(0.02)
+			, m_vert_hgh_limit(0.98)
+			, m_hor_spacing(0.02)
+			, m_vert_spacing(0.98)
 			, m_hor_grid_color(colour_name::WHITE)
 			, m_vert_grid_color(colour_name::WHITE)
 		{}
@@ -60,8 +60,9 @@ namespace BASIC_SHAPES_2D
 			, m_vert_grid_color(vert_grid_color)
 		{}
 
-		ErrorCode draw(screen_ptr screen)
+		ErrorCode draw(screen_ptr screen, pixel_vec_2d& pixel2d_buf)
 		{
+
 
 			return ErrorCode::OK;
 		}

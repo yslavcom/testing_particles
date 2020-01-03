@@ -34,6 +34,9 @@
     <Filter Include="Source Files\effect">
       <UniqueIdentifier>{327f316f-b7f3-41c4-b356-675a865ba62a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\axis">
+      <UniqueIdentifier>{26d78357-944c-46dd-be93-103b6a157fda}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\main.cpp">
@@ -76,6 +79,9 @@
     </ClInclude>
     <ClInclude Include="Src\effect\Effect.h">
       <Filter>Source Files\effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\axis\Axis.h">
+      <Filter>Source Files\axis</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

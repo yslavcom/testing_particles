@@ -37,11 +37,11 @@ namespace BASIC_SHAPES_2D
 		/*
 		Pass only normalized values for the coord and color to the function
 		*/
-		static inline ErrorCode draw_dot(const screen_ptr screen, pixel_vec_2d& pixel2d_buf, pixel_2d_coord_normal && coord_normal, rgb_color_normalized&& color, float alpha)
+		static inline ErrorCode draw_dot(const screen_ptr screen, pixel_vec_2d& pixel2d_buf, pixel_2d_coord_normal&& coord_normal, rgb_color_normalized&& color, float alpha)
 		{
-			return set_pixel( pixel2d_buf, 
-				screen->convert_to_pixel_2d_coord(std::forward<decltype(coord_normal)>(coord_normal)), 
-				std::forward<decltype(color)>(color), 
+			return set_pixel(pixel2d_buf,
+				screen->convert_to_pixel_2d_coord(std::forward<decltype(coord_normal)>(coord_normal)),
+				std::forward<decltype(color)>(color),
 				alpha);
 		}
 
@@ -50,16 +50,18 @@ namespace BASIC_SHAPES_2D
 		*/
 		static inline ErrorCode draw_dot_screen(const screen_ptr screen, pixel_vec_2d& pixel2d_buf, pixel_2d_coord&& coord, rgb_color_normalized&& color, float alpha)
 		{
-			return set_pixel(pixel2d_buf, 
+			return set_pixel(pixel2d_buf,
 				std::forward<decltype(coord)>(coord),
 				std::forward<decltype(color)>(color),
 				alpha);
 		}
 
-		static inline ErrorCode draw_line(screen_ptr screen, 
-			pixel_vec_2d& pixel2d_buf,  
-			pixel_2d_coord_normal && start, pixel_2d_coord_normal && end, 
-			rgb_color_normalized&& color)
+		static inline ErrorCode draw_dash_line(screen_ptr screen,
+			pixel_vec_2d& pixel2d_buf,
+			pixel_2d_coord_normal&& start, pixel_2d_coord_normal&& end,
+			rgb_color_normalized&& color,
+			const float dash_len_norm, const float spacing_len_norm
+		)
 		{
 			/*
 			http://rosettacode.org/wiki/Xiaolin_Wu%27s_line_algorithm#C.2B.2B
@@ -82,10 +84,8 @@ namespace BASIC_SHAPES_2D
 
 			auto plot = [=, &pixel2d_buf, &color](size_t x, size_t y, float brightness) {
 
-				using namespace BASIC_SHAPES_2D;
-
 				auto coord = pixel_2d_coord{ x, y };
-				auto r =  set_pixel(pixel2d_buf, 
+				auto r = set_pixel(pixel2d_buf,
 					std::forward<decltype(coord)>(coord),
 					std::forward<rgb_color_normalized>(color),
 					brightness);
@@ -111,6 +111,15 @@ namespace BASIC_SHAPES_2D
 			const float dx = x1 - x0;
 			const float dy = y1 - y0;
 			const float gradient = (dx == 0) ? 1 : dy / dx;
+
+			size_t dash_len = 0;
+			size_t spacing_len = 0;
+			const bool is_dash_line = (0 != spacing_len_norm);
+			if (is_dash_line)
+			{
+				dash_len = screen->convert_normalized_len_to_screen_len(dash_len_norm, gradient);
+				spacing_len = screen->convert_normalized_len_to_screen_len(spacing_len_norm, gradient);
+			}
 
 			int xpx11;
 			float intery;
@@ -148,22 +157,71 @@ namespace BASIC_SHAPES_2D
 				}
 			}
 
+			size_t dash_iter = 0;
+			size_t spacing_iter = 0;
+			bool insert_spacing = false;
+			auto process_dash = [&]()
+			{
+				if (!insert_spacing)dash_iter++;
+				else if (insert_spacing)spacing_iter++;
+				if (spacing_len <= spacing_iter)
+				{
+					dash_iter = 0;
+					spacing_iter = 0;
+				}
+			};
+
 			if (steep) {
 				for (int x = xpx11 + 1; x < xpx12; x++) {
-					plot(ipart(intery), x, rfpart(intery));
-					plot(ipart(intery) + 1, x, fpart(intery));
+
+					insert_spacing = is_dash_line && (dash_len <= dash_iter);
+					if (!insert_spacing)
+					{
+						plot(ipart(intery), x, rfpart(intery));
+						plot(ipart(intery) + 1, x, fpart(intery));
+					}
 					intery += gradient;
+
+					if (is_dash_line)
+					{
+						process_dash();
+					}
 				}
 			}
 			else {
 				for (int x = xpx11 + 1; x < xpx12; x++) {
-					plot(x, ipart(intery), rfpart(intery));
-					plot(x, ipart(intery) + 1, fpart(intery));
+
+					insert_spacing = is_dash_line && (dash_len <= dash_iter);
+					if (!insert_spacing)
+					{
+						plot(x, ipart(intery), rfpart(intery));
+						plot(x, ipart(intery) + 1, fpart(intery));
+					}
 					intery += gradient;
+
+					if (is_dash_line)
+					{
+						process_dash();
+					}
 				}
 			}
 
 			return ErrorCode::OK;
 		}
+
+
+		static inline ErrorCode draw_line(screen_ptr screen,
+			pixel_vec_2d& pixel2d_buf,
+			pixel_2d_coord_normal&& start, pixel_2d_coord_normal&& end,
+			rgb_color_normalized&& color)
+		{
+			return draw_dash_line(screen,
+				pixel2d_buf,
+				std::forward<pixel_2d_coord_normal>(start), std::forward<pixel_2d_coord_normal>(end),
+				std::forward<rgb_color_normalized>(color),
+				1, 0);
+		}
+
+
 	};
 }
