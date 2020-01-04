@@ -12,26 +12,6 @@ namespace BASIC_SHAPES_2D
 
 	class BasicShapes
 	{
-	public:
-		struct Window
-		{
-			pixel_2d_coord_normal top_corner;
-			float w;
-			float h;
-		
-			Window() 
-				: w(1)
-				, h(1)
-				, top_corner(0.0, 0.0)
-			{}
-
-			Window(pixel_2d_coord_normal top_corner, float w, float h)
-				: w(w)
-				, h(h)
-				, top_corner(top_corner)
-			{}
-		};
-
 	private:
 		BasicShapes() = delete;
 		BasicShapes(const BasicShapes&) = delete;
@@ -39,8 +19,8 @@ namespace BASIC_SHAPES_2D
 		BasicShapes operator=(const BasicShapes&) = delete;
 		BasicShapes operator=(const BasicShapes&&) = delete;
 
-		template<typename W, typename COORD, typename COLOUR>
-		inline static ErrorCode set_pixel(pixel_vec_2d& pixel2d_buf, W&& window, COORD&& pixel_2d_coord, COLOUR&& color, float alpha)
+		template<typename COORD, typename COLOUR>
+		inline static ErrorCode set_pixel(pixel_vec_2d& pixel2d_buf,  COORD&& pixel_2d_coord, COLOUR&& color, float alpha)
 		{
 			auto c = std::decay_t<decltype(color)>(color);
 			Uint32 colour = to_colour_word(std::forward<decltype(c)>(c), alpha);
@@ -62,22 +42,8 @@ namespace BASIC_SHAPES_2D
 		static inline ErrorCode draw_dot(const screen_ptr screen, W&& window, pixel_vec_2d& pixel2d_buf, COORD&& coord_normal, COLOUR&& color, float alpha)
 		{
 			return set_pixel(pixel2d_buf,
-				std::forward<decltype(window)>(window),
-				screen->convert_to_pixel_2d_coord(std::forward<decltype(coord_normal)>(coord_normal)),
-				std::forward<decltype(color)>(color),
-				alpha);
-		}
-
-		/*
-		Pass whole size coord and normalized color values to the function
-		*/
-		template<typename W, typename COORD, typename COLOUR>
-		static inline ErrorCode draw_dot_screen(const screen_ptr screen, W&& window, pixel_vec_2d& pixel2d_buf, COORD&& coord, COLOUR&& color, float alpha)
-		{
-			return set_pixel(pixel2d_buf,
-				std::forward<decltype(window)>(window),
-				std::forward<decltype(coord)>(coord),
-				std::forward<decltype(color)>(color),
+				screen->convert_to_pixel_2d_coord(coord_normal, window),
+				color,
 				alpha);
 		}
 
@@ -96,8 +62,8 @@ namespace BASIC_SHAPES_2D
 			takes about 50us to draw line in release config
 			*/
 
-			auto start_coord_screen = screen->convert_to_pixel_2d_coord(std::forward<decltype(start)>(start));
-			auto end_coord_screen = screen->convert_to_pixel_2d_coord(std::forward<decltype(end)>(end));
+			auto start_coord_screen = screen->convert_to_pixel_2d_coord(start, window);
+			auto end_coord_screen = screen->convert_to_pixel_2d_coord(end, window);
 
 			int x0 = start_coord_screen.hor;
 			int y0 = start_coord_screen.ver;
@@ -109,13 +75,11 @@ namespace BASIC_SHAPES_2D
 			auto fpart = [](float x) -> float {return x - std::floor(x); };
 			auto rfpart = [=](float x) -> float {return 1 - fpart(x); };
 
-			auto plot = [=, &window , &pixel2d_buf, &color](size_t x, size_t y, float brightness) {
+			auto plot = [=, &pixel2d_buf, &color](size_t x, size_t y, float brightness) {
 
-				auto coord = pixel_2d_coord{ x, y };
 				auto r = set_pixel(pixel2d_buf,
-					std::forward<W>(window),
-					std::forward<decltype(coord)>(coord),
-					std::forward<COLOUR>(color),
+					pixel_2d_coord{ x, y },
+					color,
 					brightness);
 
 				//DebugLog::instance()->print("brightness = " + std::to_string(brightness));
@@ -145,8 +109,8 @@ namespace BASIC_SHAPES_2D
 			const bool is_dash_line = (0 != spacing_len_norm);
 			if (is_dash_line)
 			{
-				dash_len = screen->convert_normalized_len_to_screen_len(dash_len_norm, gradient);
-				spacing_len = screen->convert_normalized_len_to_screen_len(spacing_len_norm, gradient);
+				dash_len = screen->convert_normalized_len_to_screen_len(window, dash_len_norm, gradient);
+				spacing_len = screen->convert_normalized_len_to_screen_len(window, spacing_len_norm, gradient);
 			}
 
 			int xpx11;

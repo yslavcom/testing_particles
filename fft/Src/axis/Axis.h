@@ -48,8 +48,8 @@ namespace BASIC_SHAPES_2D
 					screen, 
 					window,
 					pixel2d_buf,
-					pixel_2d_coord_normal{ m_low_limit, 1-m_gap },
-					pixel_2d_coord_normal{ m_hgh_limit, 1 - m_gap },
+					pixel_2d_coord_normal{ m_low_limit, m_gap },
+					pixel_2d_coord_normal{ m_hgh_limit, m_gap },
 					m_colour
 				);
 				break;

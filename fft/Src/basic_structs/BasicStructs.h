@@ -148,13 +148,37 @@ namespace BASIC_SHAPES_2D
 			:hor(hor), ver(ver)
 		{}
 
-		pixel_2d_coord(const pixel_2d_coord_normal && normalized, size_t width, size_t height)
-			:hor(static_cast<size_t>(normalized.hor * width)), ver(static_cast<size_t>(normalized.ver * height))
+		pixel_2d_coord( pixel_2d_coord_normal && normalized, size_t width, size_t height)
+			:hor(static_cast<size_t>((normalized.hor) * width)), ver(static_cast<size_t>((1-normalized.ver) * height))
 		{}
 
-		pixel_2d_coord(const pixel_2d_coord_normal&& normalized, int width, int height)
-			:hor(static_cast<size_t>(normalized.hor* width)), ver(static_cast<size_t>(normalized.ver* height))
+		pixel_2d_coord( pixel_2d_coord_normal&& normalized, int width, int height)
+			:hor(static_cast<size_t>((normalized.hor)* width)), ver(static_cast<size_t>((1-normalized.ver)* height))
 		{}
+
+		pixel_2d_coord(const pixel_2d_coord& other)
+		{
+			hor = other.hor;
+			ver = other.ver;
+		}
+
+		pixel_2d_coord(pixel_2d_coord&& other)
+		{
+			hor = std::move(other.hor);
+			ver = std::move(other.ver);
+		}
+
+		pixel_2d_coord operator=(const pixel_2d_coord& other)
+		{
+			*this = other;
+			return *this;
+		}
+
+		pixel_2d_coord operator=(pixel_2d_coord&& other)
+		{
+			*this = std::move(other);
+			return *this;
+		}
 	};
 
 	//using pixel_vec_2d = std::vector<std::vector<Uint32>>;

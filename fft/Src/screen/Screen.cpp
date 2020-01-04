@@ -70,6 +70,8 @@ namespace TEST_SCREEN
 #if !NO_BUFFER2
 			, m_buffer2(nullptr)
 #endif
+			, m_buffer_size_words(0)
+			, m_buffer_size_bytes(0)
 		{}
 
 		ErrorCode init(int w, int h)
