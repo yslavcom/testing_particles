@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Screen.h"
 #include "ErrorCode.h"
 #include "DebugLog.h"
 #include "Screen.h"
@@ -19,8 +18,8 @@ namespace BASIC_SHAPES_2D
 		float m_vert_low_limit;
 		float m_vert_hgh_limit;
 
-		float m_hor_spacing;
-		float m_vert_spacing;
+		float m_hor_dash_spacing;
+		float m_vert_dash_spacing;
 
 		int m_hor_square_count;
 		int m_vert_square_count;
@@ -36,8 +35,8 @@ namespace BASIC_SHAPES_2D
 			, m_hor_hgh_limit(0.98)
 			, m_vert_low_limit(0.02)
 			, m_vert_hgh_limit(0.98)
-			, m_hor_spacing(0.02)
-			, m_vert_spacing(0.98)
+			, m_hor_dash_spacing(0.002)
+			, m_vert_dash_spacing(0.002)
 			, m_hor_grid_color(colour_name::WHITE)
 			, m_vert_grid_color(colour_name::WHITE)
 		{}
@@ -54,15 +53,39 @@ namespace BASIC_SHAPES_2D
 			, m_hor_hgh_limit(hor_hgh_limit)
 			, m_vert_low_limit(vert_low_limit)
 			, m_vert_hgh_limit(vert_hgh_limit)
-			, m_hor_spacing(hor_spacing)
-			, m_vert_spacing(vert_spacing)
+			, m_hor_dash_spacing(hor_spacing)
+			, m_vert_dash_spacing(vert_spacing)
 			, m_hor_grid_color(hor_grid_color)
 			, m_vert_grid_color(vert_grid_color)
 		{}
 
 		ErrorCode draw(screen_ptr screen, pixel_vec_2d& pixel2d_buf)
 		{
+			auto hor_lines_distance = (m_vert_hgh_limit - m_vert_low_limit)/ m_vert_square_count;
+			for (int index = 0; index < m_vert_square_count; index++)
+			{
+				auto y = m_vert_low_limit + hor_lines_distance * index;
 
+				BasicShapes::draw_dash_line(screen, pixel2d_buf,
+					{ m_hor_low_limit, y },
+					{ m_hor_hgh_limit, y },
+					std::forward<rgb_color_normalized>(m_hor_grid_color),
+					m_hor_dash_spacing, m_hor_dash_spacing
+				);
+			}
+
+			auto ver_lines_distance = (m_hor_hgh_limit - m_hor_low_limit) / m_hor_square_count;
+			for (int index = 0; index < m_hor_square_count; index++)
+			{
+				auto x = m_hor_low_limit + ver_lines_distance * index;
+
+				BasicShapes::draw_dash_line(screen, pixel2d_buf,
+					{ x, m_vert_low_limit },
+					{ x, m_vert_hgh_limit},
+					std::forward<rgb_color_normalized>(m_vert_grid_color),
+					m_vert_dash_spacing, m_vert_dash_spacing
+				);
+			}
 
 			return ErrorCode::OK;
 		}

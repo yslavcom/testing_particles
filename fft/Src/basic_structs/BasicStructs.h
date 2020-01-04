@@ -24,6 +24,19 @@ namespace BASIC_SHAPES_2D
 		rgb_color_normalized():r(0), g(0), b(0)
 		{
 		}
+		rgb_color_normalized(rgb_color_normalized& colour)
+			:r(colour.r)
+			, g(colour.g)
+			, b(colour.b)
+		{
+		}
+		rgb_color_normalized(rgb_color_normalized&& colour)
+		{
+			r = std::move(colour.r);
+			g = std::move(colour.g);
+			b = std::move(colour.b);
+		}
+
 		rgb_color_normalized(float r, float g, float b) :r(r), g(g), b(b)
 		{
 		}

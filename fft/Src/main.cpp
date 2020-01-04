@@ -18,12 +18,12 @@ int main(int argc, char* args[])
 
 	screen_ptr screen = std::make_shared<Screen>();
 
-	screen->init(800, 600);
+	screen->init(1024, 768);
 	screen->clear();
 
 	Grid grid;
-	Axis x;
-	Axis y;
+	Axis axis_x(Axis::Type::X, {colour_name::WHITE});
+	Axis axis_y(Axis::Type::Y, { colour_name::WHITE });
 
 #if 1
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
@@ -38,6 +38,11 @@ int main(int argc, char* args[])
 	BasicShapes::draw_dash_line(screen, pixel2d_buf, { 0.1, 0.1 }, { 0.9, 0.9 }, { colour_name::GREEN }, 0.25, 0.25);
 	BasicShapes::draw_dash_line(screen, pixel2d_buf, { 0.1, 0.1 }, { 0.9, 0.1 }, { colour_name::GREEN }, 0.25, 0.25);
 	BasicShapes::draw_dash_line(screen, pixel2d_buf, { 0.1, 0.1 }, { 0.1, 0.9 }, { colour_name::GREEN }, 0.1, 0.01);
+
+	grid.draw(screen, pixel2d_buf);
+	axis_x.draw(screen, pixel2d_buf);
+	axis_y.draw(screen, pixel2d_buf);
+
 	screen->copy_to_screen_buf(pixel2d_buf);
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 	DebugLog::instance()->print("dt = " + std::to_string(std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()) + "[ us ]");
