@@ -28,20 +28,20 @@ int main(int argc, char* args[])
 #if 1
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 	pixel_vec_2d pixel2d_buf(screen->SCREEN_WIDTH, screen->SCREEN_HEIGHT);
-	BasicShapes::draw_dash_line(screen, pixel2d_buf, { 0.4, 0.4 }, { 0.4, 0.7 }, { colour_name::RED }, 0.05, 0.2);
-	BasicShapes::draw_line(screen, pixel2d_buf, { 0.4, 0.4 }, { 0.7, 0.4 }, { colour_name::GREEN });
-	BasicShapes::draw_line(screen, pixel2d_buf, { 0.2, 0.5 }, { 0.8, 0.5 }, { colour_name::BLUE });
-	BasicShapes::draw_line(screen, pixel2d_buf, { 0.5, 0.2 }, { 0.5, 0.4 }, { colour_name::WHITE });
-	BasicShapes::draw_dot(screen, pixel2d_buf, { 0.35, 0.35 }, { 0.5, 0.5, 1 }, 255);
-	BasicShapes::draw_line(screen, pixel2d_buf, { 0.11, 0.2 }, { 0.6, 0.95 }, { 0.1, 0.4, 0.4 });
-	BasicShapes::draw_dash_line(screen, pixel2d_buf, { 0.11, 0.2 }, { 0.91, 0.61}, { colour_name::WHITE }, 0.1, 0.1);
-	BasicShapes::draw_dash_line(screen, pixel2d_buf, { 0.1, 0.1 }, { 0.9, 0.9 }, { colour_name::GREEN }, 0.25, 0.25);
-	BasicShapes::draw_dash_line(screen, pixel2d_buf, { 0.1, 0.1 }, { 0.9, 0.1 }, { colour_name::GREEN }, 0.25, 0.25);
-	BasicShapes::draw_dash_line(screen, pixel2d_buf, { 0.1, 0.1 }, { 0.1, 0.9 }, { colour_name::GREEN }, 0.1, 0.01);
+	BasicShapes::draw_dash_line(screen, BasicShapes::Window{}, pixel2d_buf, pixel_2d_coord_normal{ 0.4, 0.4 }, pixel_2d_coord_normal{ 0.4, 0.7 }, rgb_color_normalized{ colour_name::RED }, 0.05f, 0.2f);
+	BasicShapes::draw_line(screen, BasicShapes::Window{}, pixel2d_buf, pixel_2d_coord_normal{ 0.4, 0.4 }, pixel_2d_coord_normal{ 0.7, 0.4 }, rgb_color_normalized{ colour_name::GREEN });
+	BasicShapes::draw_line(screen, BasicShapes::Window{}, pixel2d_buf, pixel_2d_coord_normal{ 0.2, 0.5 }, pixel_2d_coord_normal{ 0.8, 0.5 }, rgb_color_normalized{ colour_name::BLUE });
+	BasicShapes::draw_line(screen, BasicShapes::Window{}, pixel2d_buf, pixel_2d_coord_normal{ 0.5, 0.2 }, pixel_2d_coord_normal{ 0.5, 0.4 }, rgb_color_normalized{ colour_name::WHITE });
+	BasicShapes::draw_dot(screen, BasicShapes::Window{}, pixel2d_buf, pixel_2d_coord_normal{ 0.35, 0.35 }, rgb_color_normalized{ 0.5, 0.5, 1 }, 255);
+	BasicShapes::draw_line(screen, BasicShapes::Window{}, pixel2d_buf, pixel_2d_coord_normal{ 0.11, 0.2 }, pixel_2d_coord_normal{ 0.6, 0.95 }, rgb_color_normalized{ 0.1, 0.4, 0.4 });
+	BasicShapes::draw_dash_line(screen, BasicShapes::Window{}, pixel2d_buf, pixel_2d_coord_normal{ 0.11, 0.2 }, pixel_2d_coord_normal{ 0.91, 0.61}, rgb_color_normalized{ colour_name::WHITE }, 0.1f, 0.1f);
+	BasicShapes::draw_dash_line(screen, BasicShapes::Window{}, pixel2d_buf, pixel_2d_coord_normal{ 0.1, 0.1 }, pixel_2d_coord_normal{ 0.9, 0.9 }, rgb_color_normalized{ colour_name::GREEN }, 0.25f, 0.25f);
+	BasicShapes::draw_dash_line(screen, BasicShapes::Window{}, pixel2d_buf, pixel_2d_coord_normal{ 0.1, 0.1 }, pixel_2d_coord_normal{ 0.9, 0.1 }, rgb_color_normalized{ colour_name::GREEN }, 0.25f, 0.25f);
+	BasicShapes::draw_dash_line(screen, BasicShapes::Window{}, pixel2d_buf, pixel_2d_coord_normal{ 0.1, 0.1 }, pixel_2d_coord_normal{ 0.1, 0.9 }, rgb_color_normalized{ colour_name::GREEN }, 0.1f, 0.01f);
 
-	grid.draw(screen, pixel2d_buf);
-	axis_x.draw(screen, pixel2d_buf);
-	axis_y.draw(screen, pixel2d_buf);
+	grid.draw(screen, BasicShapes::Window{}, pixel2d_buf);
+	axis_x.draw(screen, BasicShapes::Window{}, pixel2d_buf);
+	axis_y.draw(screen, BasicShapes::Window{}, pixel2d_buf);
 
 	screen->copy_to_screen_buf(pixel2d_buf);
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();

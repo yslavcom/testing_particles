@@ -12,6 +12,26 @@ namespace BASIC_SHAPES_2D
 
 	class BasicShapes
 	{
+	public:
+		struct Window
+		{
+			pixel_2d_coord_normal top_corner;
+			float w;
+			float h;
+		
+			Window() 
+				: w(1)
+				, h(1)
+				, top_corner(0.0, 0.0)
+			{}
+
+			Window(pixel_2d_coord_normal top_corner, float w, float h)
+				: w(w)
+				, h(h)
+				, top_corner(top_corner)
+			{}
+		};
+
 	private:
 		BasicShapes() = delete;
 		BasicShapes(const BasicShapes&) = delete;
@@ -19,13 +39,14 @@ namespace BASIC_SHAPES_2D
 		BasicShapes operator=(const BasicShapes&) = delete;
 		BasicShapes operator=(const BasicShapes&&) = delete;
 
-		inline static ErrorCode set_pixel(pixel_vec_2d& pixel2d_buf, pixel_2d_coord&& pixel_2d_coord, rgb_color_normalized&& color, Uint8 alpha)
+		template<typename W, typename COORD, typename COLOUR>
+		inline static ErrorCode set_pixel(pixel_vec_2d& pixel2d_buf, W&& window, COORD&& pixel_2d_coord, COLOUR&& color, float alpha)
 		{
 			auto c = std::decay_t<decltype(color)>(color);
 			Uint32 colour = to_colour_word(std::forward<decltype(c)>(c), alpha);
 			if (!pixel2d_buf(std::forward<decltype(pixel_2d_coord)>(pixel_2d_coord), colour))
 			{
-				return ErrorCode::SET_PIXEL_OUT_OF_BOUNDS;;
+				return ErrorCode::SET_PIXEL_OUT_OF_BOUNDS;
 			}
 			else
 			{
@@ -37,9 +58,11 @@ namespace BASIC_SHAPES_2D
 		/*
 		Pass only normalized values for the coord and color to the function
 		*/
-		static inline ErrorCode draw_dot(const screen_ptr screen, pixel_vec_2d& pixel2d_buf, pixel_2d_coord_normal&& coord_normal, rgb_color_normalized&& color, float alpha)
+		template<typename W, typename COORD, typename COLOUR>
+		static inline ErrorCode draw_dot(const screen_ptr screen, W&& window, pixel_vec_2d& pixel2d_buf, COORD&& coord_normal, COLOUR&& color, float alpha)
 		{
 			return set_pixel(pixel2d_buf,
+				std::forward<decltype(window)>(window),
 				screen->convert_to_pixel_2d_coord(std::forward<decltype(coord_normal)>(coord_normal)),
 				std::forward<decltype(color)>(color),
 				alpha);
@@ -48,18 +71,22 @@ namespace BASIC_SHAPES_2D
 		/*
 		Pass whole size coord and normalized color values to the function
 		*/
-		static inline ErrorCode draw_dot_screen(const screen_ptr screen, pixel_vec_2d& pixel2d_buf, pixel_2d_coord&& coord, rgb_color_normalized&& color, float alpha)
+		template<typename W, typename COORD, typename COLOUR>
+		static inline ErrorCode draw_dot_screen(const screen_ptr screen, W&& window, pixel_vec_2d& pixel2d_buf, COORD&& coord, COLOUR&& color, float alpha)
 		{
 			return set_pixel(pixel2d_buf,
+				std::forward<decltype(window)>(window),
 				std::forward<decltype(coord)>(coord),
 				std::forward<decltype(color)>(color),
 				alpha);
 		}
 
+		template<typename W, typename COORD, typename COLOUR>
 		static inline ErrorCode draw_dash_line(screen_ptr screen,
+			W&& window,
 			pixel_vec_2d& pixel2d_buf,
-			pixel_2d_coord_normal&& start, pixel_2d_coord_normal&& end,
-			rgb_color_normalized&& color,
+			COORD&& start, COORD&& end,
+			COLOUR&& color,
 			const float dash_len_norm, const float spacing_len_norm
 		)
 		{
@@ -82,12 +109,13 @@ namespace BASIC_SHAPES_2D
 			auto fpart = [](float x) -> float {return x - std::floor(x); };
 			auto rfpart = [=](float x) -> float {return 1 - fpart(x); };
 
-			auto plot = [=, &pixel2d_buf, &color](size_t x, size_t y, float brightness) {
+			auto plot = [=, &window , &pixel2d_buf, &color](size_t x, size_t y, float brightness) {
 
 				auto coord = pixel_2d_coord{ x, y };
 				auto r = set_pixel(pixel2d_buf,
+					std::forward<W>(window),
 					std::forward<decltype(coord)>(coord),
-					std::forward<rgb_color_normalized>(color),
+					std::forward<COLOUR>(color),
 					brightness);
 
 				//DebugLog::instance()->print("brightness = " + std::to_string(brightness));
@@ -209,16 +237,18 @@ namespace BASIC_SHAPES_2D
 			return ErrorCode::OK;
 		}
 
-
+		template<typename W, typename COORD, typename COLOUR>
 		static inline ErrorCode draw_line(screen_ptr screen,
+			W&& window,
 			pixel_vec_2d& pixel2d_buf,
-			pixel_2d_coord_normal&& start, pixel_2d_coord_normal&& end,
-			rgb_color_normalized&& color)
+			COORD&& start, COORD&& end,
+			COLOUR&& color)
 		{
 			return draw_dash_line(screen,
+				std::forward<W>(window),
 				pixel2d_buf,
-				std::forward<pixel_2d_coord_normal>(start), std::forward<pixel_2d_coord_normal>(end),
-				std::forward<rgb_color_normalized>(color),
+				std::forward<COORD>(start), std::forward<COORD>(end),
+				std::forward<COLOUR>(color),
 				1, 0);
 		}
 

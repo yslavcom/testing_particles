@@ -30,32 +30,38 @@ namespace BASIC_SHAPES_2D
 		Axis(Type type,
 			rgb_color_normalized&& colour)
 			: m_type(type)
-			, m_low_limit(0.1)
-			, m_hgh_limit(0.9)
-			, m_gap(0.1)
+			, m_low_limit(0.1f)
+			, m_hgh_limit(0.9f)
+			, m_gap(0.1f)
 			, m_colour(colour)
 		{}
 
+		template <typename W>
 		ErrorCode draw(screen_ptr screen,
+			W&& window,
 			pixel_vec_2d& pixel2d_buf)
 		{
 			switch (m_type)
 			{
 			case Type::X:
 				BasicShapes::draw_line(
-					screen, pixel2d_buf,
-					{ m_low_limit, 1-m_gap },
-					{ m_hgh_limit, 1 - m_gap },
-					std::forward<decltype(m_colour)>(m_colour)
+					screen, 
+					window,
+					pixel2d_buf,
+					pixel_2d_coord_normal{ m_low_limit, 1-m_gap },
+					pixel_2d_coord_normal{ m_hgh_limit, 1 - m_gap },
+					m_colour
 				);
 				break;
 
 			case Type::Y:
 				BasicShapes::draw_line(
-					screen, pixel2d_buf,
-					{  m_gap, m_low_limit },
-					{  m_gap, m_hgh_limit },
-					std::forward<decltype(m_colour)>(m_colour)
+					screen, 
+					window,
+					pixel2d_buf,
+					pixel_2d_coord_normal{  m_gap, m_low_limit },
+					pixel_2d_coord_normal{  m_gap, m_hgh_limit },
+					m_colour
 				);
 				break;
 			}

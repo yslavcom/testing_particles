@@ -30,8 +30,8 @@ namespace BASIC_EFFECTS
 	public:
 		void boxBlur(pixel_vec_2d& pixel2d_buf)
 		{
-			auto WIDTH = pixel2d_buf.GET_WIDTH();
-			auto HEIGHT = pixel2d_buf.GET_HEIGHT();
+			int WIDTH = pixel2d_buf.GET_WIDTH();
+			int HEIGHT = pixel2d_buf.GET_HEIGHT();
 
 			for (int y = 0; y < WIDTH; y++)
 			{

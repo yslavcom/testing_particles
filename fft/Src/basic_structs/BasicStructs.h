@@ -40,6 +40,9 @@ namespace BASIC_SHAPES_2D
 		rgb_color_normalized(float r, float g, float b) :r(r), g(g), b(b)
 		{
 		}
+		rgb_color_normalized(double r, double g, double b) :r(static_cast<float>(r)), g(static_cast<float>(g)), b(static_cast<float>(b))
+		{
+		}
 		rgb_color_normalized(const colour_name& color)
 		{
 			assign_color(color);
@@ -118,6 +121,10 @@ namespace BASIC_SHAPES_2D
 
 		pixel_2d_coord_normalized(T hor, T ver)
 			:hor(hor), ver(ver)
+		{}
+
+		pixel_2d_coord_normalized(double hor, double ver)
+			:hor(static_cast<T>(hor)), ver(static_cast<T>(ver))
 		{}
 	};
 
@@ -231,17 +238,17 @@ namespace BASIC_SHAPES_2D
 		return colour;
 	}
 
-	static Uint32 to_colour_word(rgb_color_normalized&& color, Uint8 alpha)
+	static Uint32 to_colour_word(rgb_color_normalized&& color, float alpha)
 	{
 		Uint32 colour = 0;
 
-		colour += alpha;
+		colour += static_cast<Uint8>(alpha * MAX_ALPHA_VALUE);
 		colour <<= 8;
-		colour += (color.r * MAX_COLOR_VALUE);
+		colour += static_cast<Uint8>(color.r * MAX_COLOR_VALUE);
 		colour <<= 8;
-		colour += (color.g * MAX_COLOR_VALUE);
+		colour += static_cast<Uint8>(color.g * MAX_COLOR_VALUE);
 		colour <<= 8;
-		colour += (color.b * MAX_COLOR_VALUE);
+		colour += static_cast<Uint8>(color.b * MAX_COLOR_VALUE);
 
 		return colour;
 	}
