@@ -126,6 +126,32 @@ namespace BASIC_SHAPES_2D
 		pixel_2d_coord_normalized(double hor, double ver)
 			:hor(static_cast<T>(hor)), ver(static_cast<T>(ver))
 		{}
+
+		pixel_2d_coord_normalized(const pixel_2d_coord_normalized& other)
+		{
+			hor = other.hor;
+			ver = other.ver;
+		}
+
+		pixel_2d_coord_normalized(pixel_2d_coord_normalized&& other)
+		{
+			hor = std::move(other.hor);
+			ver = std::move(other.ver);
+		}
+
+		pixel_2d_coord_normalized operator=(const pixel_2d_coord_normalized& other)
+		{
+			hor = other.hor;
+			ver = other.ver;
+			return *this;
+		}
+
+		pixel_2d_coord_normalized operator=(pixel_2d_coord_normalized&& other)
+		{
+			hor = std::move(other.hor);
+			ver = std::move(other.ver);
+			return *this;
+		}
 	};
 
 	using pixel_2d_coord_normal = pixel_2d_coord_normalized<>;
@@ -176,7 +202,8 @@ namespace BASIC_SHAPES_2D
 
 		pixel_2d_coord operator=(pixel_2d_coord&& other)
 		{
-			*this = std::move(other);
+			hor = std::move(other.hor);
+			ver = std::move(other.ver);
 			return *this;
 		}
 	};
@@ -223,7 +250,7 @@ namespace BASIC_SHAPES_2D
 			return false;
 		}
 
-		Uint32 operator()(const pixel_2d_coord&& coord)
+		Uint32 operator()( pixel_2d_coord&& coord)
 		{
 			if (coord.hor < m
 				&& coord.ver < n)
@@ -276,5 +303,55 @@ namespace BASIC_SHAPES_2D
 
 		return colour;
 	}
+
+	struct ScalingWindow
+	{
+		pixel_2d_coord_normal corner_coord;
+		float w;
+		float h;
+
+		ScalingWindow()
+			: w(1)
+			, h(1)
+			, corner_coord(0.0, 0.0)
+		{}
+
+		ScalingWindow(pixel_2d_coord_normal corner_coord, float w, float h)
+			: w(w)
+			, h(h)
+			, corner_coord(corner_coord)
+		{}
+
+		ScalingWindow(const ScalingWindow& other)
+		{
+			corner_coord = other.corner_coord;
+			w = other.w;
+			h = other.h;
+		}
+
+		ScalingWindow(ScalingWindow&& other)
+		{
+			corner_coord = std::move(other.corner_coord);
+			w = std::move(other.w);
+			h = std::move(other.h);
+		}
+
+		ScalingWindow operator=(const ScalingWindow& other)
+		{
+			corner_coord = other.corner_coord;
+			w = other.w;
+			h = other.h;
+			return *this;
+		}
+
+		ScalingWindow operator=(ScalingWindow&& other)
+		{
+			corner_coord = std::move(other.corner_coord);
+			w = std::move(other.w);
+			h = std::move(other.h);
+			return *this;
+		}
+	};
+
 }
 

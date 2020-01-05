@@ -17,48 +17,47 @@ namespace TEST_SCREEN
 	class Screen
 	{
 	public:
-		struct Window
+
+		struct ScreenWindow
 		{
-			pixel_2d_coord_normal corner_coord;
-			float w;
-			float h;
+			enum class Vertex
+			{
+				A, B, C, D
+			};
 
-			Window()
-				: w(1)
-				, h(1)
-				, corner_coord(0.0, 0.0)
-			{}
+			pixel_2d_coord corner_coord;
+			size_t w;
+			size_t h;
 
-			Window(pixel_2d_coord_normal corner_coord, float w, float h)
-				: w(w)
+			ScreenWindow(const pixel_2d_coord& corner_coord, size_t w, size_t h)
+				:corner_coord(corner_coord)
+				, w(w)
 				, h(h)
-				, corner_coord(corner_coord)
 			{}
 
-			Window(const Window& other)
+			inline pixel_2d_coord get_vertex_coord(Vertex vertex)
 			{
-				corner_coord = other.corner_coord;
-				w = other.w;
-				h = other.h;
-			}
+				/*
+				D**C
+				*  *
+				*  *
+				A**B
+				*/
 
-			Window( Window&& other)
-			{
-				corner_coord = std::move(other.corner_coord);
-				w = std::move(other.w);
-				h = std::move(other.h);
-			}
+				switch (vertex)
+				{
+				case Vertex::A:
+					return corner_coord;
 
-			Window operator=(const Window& other)
-			{
-				*this = other;
-				return *this;
-			}
+				case Vertex::B:
+					return { corner_coord.hor + w, corner_coord.ver };
 
-			Window operator=( Window&& other)
-			{
-				*this = std::move(other);
-				return *this;
+				case Vertex::C:
+					return { corner_coord.hor + w, corner_coord.ver - h };
+
+				case Vertex::D:
+					return { corner_coord.hor , corner_coord.ver - h};
+				}
 			}
 		};
 
@@ -83,20 +82,28 @@ namespace TEST_SCREEN
 		virtual ~Screen();
 		ErrorCode init(int w, int h);
 
+		template<typename W>
+		static inline ScreenWindow to_screen_window(W&& window)
+		{
+			ScalingWindow w(window);
+			auto w_coord = pixel_2d_coord{ std::forward<decltype(w.corner_coord)>(w.corner_coord), Screen::SCREEN_WIDTH, Screen::SCREEN_HEIGHT };
+			size_t w_w = w.w * Screen::SCREEN_WIDTH;
+			size_t w_h = w.h * Screen::SCREEN_HEIGHT;
+
+			return { w_coord , w_w, w_h };
+		}
+
 		template<typename T, typename W>
 		static inline pixel_2d_coord convert_to_pixel_2d_coord(T&& pixel_2d_coord_norm, W&& window)
 		{
 			/*
 			Get the window area on the screen
 			*/
-			Screen::Window w(window);
-			auto w_coord = pixel_2d_coord{ std::forward<decltype(w.corner_coord)>(w.corner_coord), Screen::SCREEN_WIDTH, Screen::SCREEN_HEIGHT };
-			size_t w_w = w.w * Screen::SCREEN_WIDTH;
-			size_t w_h = w.h * Screen::SCREEN_HEIGHT;
+			ScreenWindow screenWindow(to_screen_window(window));
 			
-			auto coord = pixel_2d_coord{ std::forward<pixel_2d_coord_normal>(pixel_2d_coord_norm), w_w, w_h };
-			coord.hor += w_coord.hor;
-			coord.ver = w_coord.ver - (w_h - coord.ver);
+			auto coord = pixel_2d_coord{ std::forward<pixel_2d_coord_normal>(pixel_2d_coord_norm), screenWindow.w, screenWindow.h };
+			coord.hor += screenWindow.corner_coord.hor;
+			coord.ver = screenWindow.corner_coord.ver - (screenWindow.h - coord.ver);
 
 			return coord;
 		}
@@ -108,9 +115,9 @@ namespace TEST_SCREEN
 			double cosine = 1.0 / std::sqrt(1.0 + tan * tan); // we do not care about sign in this case
 			double sine = std::sqrt(1.0 - cosine * cosine); // we do not care about sign in this case
 
-			Screen::Window w(window);
-			auto x = w.w * Screen::SCREEN_WIDTH * cosine;
-			auto y = w.h * Screen::SCREEN_HEIGHT * sine;
+			ScreenWindow screenWindow(to_screen_window(window));
+			auto x = screenWindow.w * cosine;
+			auto y = screenWindow.h * sine;
 			auto d = std::sqrt((x * x) + (y * y));
 
 			return static_cast<size_t>(std::ceil(len * d));

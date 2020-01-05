@@ -4,6 +4,7 @@
 
 #include "ErrorCode.h"
 #include "BasicStructs.h"
+#include "Screen.h"
 
 namespace BASIC_EFFECTS
 {
@@ -28,16 +29,29 @@ namespace BASIC_EFFECTS
 		}
 
 	public:
-		void boxBlur(pixel_vec_2d& pixel2d_buf)
+		template<typename W>
+		void boxBlur(screen_ptr screen, W&& window, pixel_vec_2d& pixel2d_buf)
 		{
-			int WIDTH = pixel2d_buf.GET_WIDTH();
-			int HEIGHT = pixel2d_buf.GET_HEIGHT();
+			auto screenWindow = screen->to_screen_window(window);
 
-			for (int y = 0; y < WIDTH; y++)
+			size_t WIDTH_L, WIDTH_H;
+			size_t HEIGHT_L, HEIGHT_H;
+			auto coord = screenWindow.get_vertex_coord(Screen::ScreenWindow::Vertex::A);
+			WIDTH_L = coord.hor;
+			HEIGHT_L = coord.ver;
+
+			coord = screenWindow.get_vertex_coord(Screen::ScreenWindow::Vertex::C);
+			WIDTH_H = coord.hor;
+			HEIGHT_H = coord.ver;
+
+			if (HEIGHT_H < HEIGHT_L)std::swap(HEIGHT_H, HEIGHT_L);
+			if (WIDTH_H < WIDTH_L)std::swap(WIDTH_H, WIDTH_L);
+
+			for (int y = HEIGHT_L; y < HEIGHT_H; y++)
 			{
-				for (int x = 0; x < HEIGHT; x++)
+				for (int x = WIDTH_L; x < WIDTH_H; x++)
 				{
-
+#if 0
 					int redTotal = 0;
 					int greenTotal = 0;
 					int blueTotal = 0;
@@ -49,8 +63,8 @@ namespace BASIC_EFFECTS
 							int currentX = x + col;
 							int currentY = y + row;
 
-							if (currentX >= 0 && currentX < WIDTH
-								&& currentY >= 0 && currentY < HEIGHT)
+							if (currentX >= WIDTH_L && currentX < WIDTH_H
+								&& currentY >= HEIGHT_L && currentY < HEIGHT_H)
 							{
 								Uint32 colour = pixel2d_buf({ currentX, currentY });
 
@@ -70,6 +84,7 @@ namespace BASIC_EFFECTS
 					Uint8 blue = blueTotal / 9;
 
 					setPixel(pixel2d_buf, { x, y },  {red, green, blue });
+#endif
 				}
 			}
 		}
