@@ -1,10 +1,12 @@
 #pragma once
 
 #include <memory>
+#include <type_traits>
 
 #include "ErrorCode.h"
 #include "screen.h"
 #include "BasicStructs.h"
+
 
 namespace BASIC_SHAPES_2D
 {
@@ -34,26 +36,15 @@ namespace BASIC_SHAPES_2D
 			}
 		}
 
-	public:
-		/*
-		Pass only normalized values for the coord and color to the function
-		*/
-		template<typename W, typename COORD, typename COLOUR>
-		static inline ErrorCode draw_dot(const screen_ptr screen, W&& window, pixel_vec_2d& pixel2d_buf, COORD&& coord_normal, COLOUR&& color, float alpha)
-		{
-			return set_pixel(pixel2d_buf,
-				screen->convert_to_pixel_2d_coord(coord_normal, window),
-				color,
-				alpha);
-		}
-
-		template<typename W, typename COORD, typename COLOUR>
-		static inline ErrorCode draw_dash_line(screen_ptr screen,
+		template<typename W, typename COORD, typename COLOUR,
+			typename DashFoo, typename SpacingFoo>
+		static inline ErrorCode do_dash_line(screen_ptr screen,
 			W&& window,
 			pixel_vec_2d& pixel2d_buf,
 			COORD&& start, COORD&& end,
 			COLOUR&& color,
-			const float dash_len_norm, const float spacing_len_norm
+			const size_t dash_len_norm, const size_t spacing_len_norm,
+			DashFoo dashFoo, SpacingFoo spacingFoo
 		)
 		{
 			/*
@@ -62,13 +53,10 @@ namespace BASIC_SHAPES_2D
 			takes about 50us to draw line in release config
 			*/
 
-			auto start_coord_screen = screen->convert_to_pixel_2d_coord(start, window);
-			auto end_coord_screen = screen->convert_to_pixel_2d_coord(end, window);
-
-			int x0 = start_coord_screen.hor;
-			int y0 = start_coord_screen.ver;
-			int x1 = end_coord_screen.hor;
-			int y1 = end_coord_screen.ver;
+			int x0 = start.hor;
+			int y0 = start.ver;
+			int x1 = end.hor;
+			int y1 = end.ver;
 
 			auto ipart = [](float x) -> int {return int(std::floor(x)); };
 			auto round = [](float x) -> float {return std::round(x); };
@@ -109,8 +97,8 @@ namespace BASIC_SHAPES_2D
 			const bool is_dash_line = (0 != spacing_len_norm);
 			if (is_dash_line)
 			{
-				dash_len = screen->convert_normalized_len_to_screen_len(window, dash_len_norm, gradient);
-				spacing_len = screen->convert_normalized_len_to_screen_len(window, spacing_len_norm, gradient);
+				dash_len = dashFoo(window, dash_len_norm, gradient);
+				spacing_len = spacingFoo(window, spacing_len_norm, gradient);
 			}
 
 			int xpx11;
@@ -199,6 +187,179 @@ namespace BASIC_SHAPES_2D
 			}
 
 			return ErrorCode::OK;
+		}
+
+	public:
+		/*
+		Pass only normalized values for the coord and color to the function
+		*/
+		template<typename W, typename COORD, typename COLOUR>
+		static inline ErrorCode draw_dot(const screen_ptr screen, W&& window, pixel_vec_2d& pixel2d_buf, COORD&& coord_normal, COLOUR&& color, float alpha)
+		{
+			return set_pixel(pixel2d_buf,
+				screen->convert_normalized_to_pixel_2d_coord(coord_normal, window),
+				color,
+				alpha);
+		}
+
+		/*
+		ScalingWindow&&, normalized coordinates
+		*/
+		template<typename W , typename COORD, typename COLOUR
+			, typename std::enable_if<std::is_same<std::remove_cv_t<W>, ScalingWindow>::value, std::nullptr_t > ::type = nullptr>
+			static inline ErrorCode draw_dash_line(screen_ptr screen,
+			W&& window,
+			pixel_vec_2d& pixel2d_buf,
+			COORD&& start, COORD&& end,
+			COLOUR&& color,
+			const float dash_len_norm, const float spacing_len_norm
+		)
+		{
+			auto lambda_dash_len = [=](auto&& window, auto dash_len_norm, auto gradient) {return screen->convert_normalized_len_to_screen_len(window, dash_len_norm, gradient); };
+			auto lambda_spacing_len = [=](auto&& window, auto spacing_len_norm, auto gradient) {return screen->convert_normalized_len_to_screen_len(window, spacing_len_norm, gradient); };
+
+			return do_dash_line(screen,
+				window,
+				pixel2d_buf,
+				pixel_2d_coord{ screen->convert_normalized_to_pixel_2d_coord(start, window) }, pixel_2d_coord{ screen->convert_normalized_to_pixel_2d_coord(end, window) },
+				color,
+				dash_len_norm, spacing_len_norm,
+				lambda_dash_len, lambda_spacing_len
+			);
+		}
+
+		/*
+		ScalingWindow&, normalized coordinates
+		*/
+		template<typename W, typename COORD, typename COLOUR
+			, typename std::enable_if<std::is_same<std::remove_cv_t<W>, ScalingWindow>::value, std::nullptr_t > ::type = nullptr>
+			static inline ErrorCode draw_dash_line(screen_ptr screen,
+				W& window,
+				pixel_vec_2d& pixel2d_buf,
+				COORD&& start, COORD&& end,
+				COLOUR&& color,
+				const float dash_len_norm, const float spacing_len_norm
+			)
+		{
+			auto lambda_dash_len = [=](auto&& window, auto dash_len_norm, auto gradient) {return screen->convert_normalized_len_to_screen_len(window, dash_len_norm, gradient); };
+			auto lambda_spacing_len = [=](auto&& window, auto spacing_len_norm, auto gradient) {return screen->convert_normalized_len_to_screen_len(window, spacing_len_norm, gradient); };
+
+			return do_dash_line(screen,
+				window,
+				pixel2d_buf,
+				pixel_2d_coord{ screen->convert_normalized_to_pixel_2d_coord(start, window) }, pixel_2d_coord{ screen->convert_normalized_to_pixel_2d_coord(end, window) },
+				color,
+				dash_len_norm, spacing_len_norm,
+				lambda_dash_len, lambda_spacing_len
+			);
+		}
+
+		/*
+		Screen::ScreenWindow&&, screen coordinates
+		*/
+		template<typename W, typename COORD, typename COLOUR
+			, typename std::enable_if<std::is_same<std::remove_cv_t<W>, Screen::ScreenWindow>::value, std::nullptr_t > ::type = nullptr
+			, typename std::enable_if<std::is_same<std::remove_cv_t<COORD>, pixel_2d_coord>::value, std::nullptr_t > ::type = nullptr >
+		static inline ErrorCode draw_dash_line(screen_ptr screen,
+			W&& window,
+			pixel_vec_2d& pixel2d_buf,
+			COORD&& start, COORD&& end,
+			COLOUR&& color,
+			const float dash_len_norm, const float spacing_len_norm
+		)
+		{
+			auto lambda_dash_len = [=](auto&& window, auto dash_len_norm, auto gradient) {return screen->convert_len_to_screen_len(window, dash_len_norm, gradient); };
+			auto lambda_spacing_len = [=](auto&& window, auto spacing_len_norm, auto gradient) {return screen->convert_len_to_screen_len(window, spacing_len_norm, gradient); };
+
+			return do_dash_line(screen,
+				window,
+				pixel2d_buf,
+				pixel_2d_coord{ screen->convert_with_pixel_2d_coord(start, window) }, pixel_2d_coord{ screen->convert_with_pixel_2d_coord(end, window) },
+				color,
+				dash_len_norm, spacing_len_norm,
+				lambda_dash_len, lambda_spacing_len
+			);
+		}
+
+		/*
+		Screen::ScreenWindow&, screen coordinates
+		*/
+		template<typename W, typename COORD, typename COLOUR
+			, typename std::enable_if<std::is_same<std::remove_cv_t<W>, Screen::ScreenWindow>::value, std::nullptr_t > ::type = nullptr
+			, typename std::enable_if<std::is_same<std::remove_cv_t<COORD>, pixel_2d_coord>::value, std::nullptr_t > ::type = nullptr >
+			static inline ErrorCode draw_dash_line(screen_ptr screen,
+				W& window,
+				pixel_vec_2d& pixel2d_buf,
+				COORD&& start, COORD&& end,
+				COLOUR&& color,
+				const float dash_len_norm, const float spacing_len_norm
+			)
+		{
+			auto lambda_dash_len = [=](auto&& window, auto dash_len_norm, auto gradient) {return screen->convert_len_to_screen_len(window, dash_len_norm, gradient); };
+			auto lambda_spacing_len = [=](auto&& window, auto spacing_len_norm, auto gradient) {return screen->convert_len_to_screen_len(window, spacing_len_norm, gradient); };
+
+			return do_dash_line(screen,
+				window,
+				pixel2d_buf,
+				pixel_2d_coord{ screen->convert_with_pixel_2d_coord(start, window) }, pixel_2d_coord{ screen->convert_with_pixel_2d_coord(end, window) },
+				color,
+				dash_len_norm, spacing_len_norm,
+				lambda_dash_len, lambda_spacing_len
+			);
+		}
+
+		/*
+		Screen::ScreenWindow&&, normalized coordinates
+		*/
+		template<typename W, typename COORD, typename COLOUR
+			, typename std::enable_if<std::is_same<std::remove_cv_t<W>, Screen::ScreenWindow>::value, std::nullptr_t > ::type = nullptr
+			, typename std::enable_if<std::is_same<std::remove_cv_t<COORD>, pixel_2d_coord_normal>::value, std::nullptr_t > ::type = nullptr >
+			static inline ErrorCode draw_dash_line(screen_ptr screen,
+				W&& window,
+				pixel_vec_2d& pixel2d_buf,
+				COORD&& start, COORD&& end,
+				COLOUR&& color,
+				const float dash_len_norm, const float spacing_len_norm
+			)
+		{
+			auto lambda_dash_len = [=](auto&& window, auto dash_len_norm, auto gradient) {return screen->convert_len_to_screen_len(window, dash_len_norm, gradient); };
+			auto lambda_spacing_len = [=](auto&& window, auto spacing_len_norm, auto gradient) {return screen->convert_len_to_screen_len(window, spacing_len_norm, gradient); };
+
+			return do_dash_line(screen,
+				window,
+				pixel2d_buf,
+				pixel_2d_coord{ screen->convert_normalized_to_pixel_2d_coord(start, window) }, pixel_2d_coord{ screen->convert_normalized_to_pixel_2d_coord(end, window) },
+				color,
+				dash_len_norm, spacing_len_norm,
+				lambda_dash_len, lambda_spacing_len
+			);
+		}
+
+		/*
+		Screen::ScreenWindow&, normalized coordinates
+		*/
+		template<typename W, typename COORD, typename COLOUR
+			, typename std::enable_if<std::is_same<std::remove_cv_t<W>, Screen::ScreenWindow>::value, std::nullptr_t > ::type = nullptr
+			, typename std::enable_if<std::is_same<std::remove_cv_t<COORD>, pixel_2d_coord_normal>::value, std::nullptr_t > ::type = nullptr >
+			static inline ErrorCode draw_dash_line(screen_ptr screen,
+				W& window,
+				pixel_vec_2d& pixel2d_buf,
+				COORD&& start, COORD&& end,
+				COLOUR&& color,
+				const float dash_len_norm, const float spacing_len_norm
+			)
+		{
+			auto lambda_dash_len = [=](auto&& window, auto dash_len_norm, auto gradient) {return screen->convert_len_to_screen_len(window, dash_len_norm, gradient); };
+			auto lambda_spacing_len = [=](auto&& window, auto spacing_len_norm, auto gradient) {return screen->convert_len_to_screen_len(window, spacing_len_norm, gradient); };
+
+			return do_dash_line(screen,
+				window,
+				pixel2d_buf,
+				pixel_2d_coord{ screen->convert_normalized_to_pixel_2d_coord(start, window) }, pixel_2d_coord{ screen->convert_normalized_to_pixel_2d_coord(end, window) },
+				color,
+				dash_len_norm, spacing_len_norm,
+				lambda_dash_len, lambda_spacing_len
+			);
 		}
 
 		template<typename W, typename COORD, typename COLOUR>

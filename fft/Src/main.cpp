@@ -27,8 +27,8 @@ int main(int argc, char* args[])
 
 	BASIC_EFFECTS::Effect effect;
 	Grid grid;
-	Axis axis_x(Axis::Type::X, {colour_name::WHITE});
-	Axis axis_y(Axis::Type::Y, { colour_name::WHITE });
+	Axis axis_x(Axis::Type::X, {colour_name::RED});
+	Axis axis_y(Axis::Type::Y, { colour_name::RED });
 
 	std::vector<Screen::ScreenWindow> vector_of_scaling_windows;
 
@@ -41,9 +41,20 @@ int main(int argc, char* args[])
 	vector_of_scaling_windows.emplace_back(Screen::to_screen_window(window_2));
 
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
+	//create graphics
 	grid.draw(screen, window_1, pixel2d_buf);
 	BasicShapes::draw_dash_line(screen, window_1, pixel2d_buf, pixel_2d_coord_normal{ 0.5, 0.1 }, pixel_2d_coord_normal{ 0.5, 0.9 }, rgb_color_normalized{ colour_name::RED }, 0.1f, 0.01f);
+	BasicShapes::draw_dash_line(screen, window_1, pixel2d_buf, pixel_2d_coord_normal{ 0.5, 0.1 }, pixel_2d_coord_normal{ 0.5, 0.9 }, rgb_color_normalized{ colour_name::RED }, 0.1f, 0.01f);
 	BasicShapes::draw_dash_line(screen, window_1, pixel2d_buf, pixel_2d_coord_normal{ 0.1, 0.1 }, pixel_2d_coord_normal{ 0.9, 0.9 }, rgb_color_normalized{ colour_name::RED }, 0.1f, 0.01f);
+
+	Screen::ScreenWindow window_screen{ {10, 600}, 100, 200 };
+	BasicShapes::draw_dash_line(screen, window_screen, pixel2d_buf, pixel_2d_coord{ 5, 5 }, pixel_2d_coord{ 80, 180 }, rgb_color_normalized{ colour_name::BLUE }, 0.1f, 0.01f);
+	BasicShapes::draw_dash_line(screen, window_screen, pixel2d_buf, pixel_2d_coord_normalized{ 0.1, 0.1 }, pixel_2d_coord_normalized{ 0.8, 05 }, rgb_color_normalized{ colour_name::BLUE }, 0.1f, 0.01f);
+	grid.draw(screen, window_screen, pixel2d_buf);
+	axis_x.draw(screen, window_screen, pixel2d_buf);
+	axis_y.draw(screen, window_screen, pixel2d_buf);
+	vector_of_scaling_windows.emplace_back(window_screen);
 
 	axis_x.draw(screen, window_2, pixel2d_buf);
 	axis_y.draw(screen, window_2, pixel2d_buf);
