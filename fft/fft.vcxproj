@@ -147,6 +147,7 @@
     <ClInclude Include="Src\audio.h" />
     <ClInclude Include="Src\axis\Axis.h" />
     <ClInclude Include="Src\basic_shapes\BasicShapes.h" />
+    <ClInclude Include="Src\basic_shapes\BasicShapesDraw.h" />
     <ClInclude Include="Src\basic_structs\BasicStructs.h" />
     <ClInclude Include="Src\debug_log\DebugLog.h" />
     <ClInclude Include="Src\effect\Effect.h" />
@@ -154,6 +155,7 @@
     <ClInclude Include="Src\fft.h" />
     <ClInclude Include="Src\grid\Grid.h" />
     <ClInclude Include="Src\screen\Screen.h" />
+    <ClInclude Include="Src\widget\Widget.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -37,6 +37,9 @@
     <Filter Include="Source Files\axis">
       <UniqueIdentifier>{26d78357-944c-46dd-be93-103b6a157fda}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\widget">
+      <UniqueIdentifier>{90bf903f-d1c2-4f7b-b447-e54cb05987ce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\main.cpp">
@@ -65,9 +68,6 @@
     <ClInclude Include="Src\debug_log\DebugLog.h">
       <Filter>Source Files\debug_log</Filter>
     </ClInclude>
-    <ClInclude Include="Src\basic_shapes\BasicShapes.h">
-      <Filter>Source Files\basic_shapes</Filter>
-    </ClInclude>
     <ClInclude Include="Src\error_code\ErrorCode.h">
       <Filter>Source Files\error_code</Filter>
     </ClInclude>
@@ -82,6 +82,15 @@
     </ClInclude>
     <ClInclude Include="Src\axis\Axis.h">
       <Filter>Source Files\axis</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\widget\Widget.h">
+      <Filter>Source Files\widget</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\basic_shapes\BasicShapesDraw.h">
+      <Filter>Source Files\basic_shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\basic_shapes\BasicShapes.h">
+      <Filter>Source Files\basic_shapes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

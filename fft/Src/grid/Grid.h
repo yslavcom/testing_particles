@@ -3,7 +3,7 @@
 #include "ErrorCode.h"
 #include "DebugLog.h"
 #include "Screen.h"
-#include "BasicShapes.h"
+#include "BasicShapesDraw.h"
 #include "BasicStructs.h"
 
 
@@ -67,7 +67,7 @@ namespace BASIC_SHAPES_2D
 			{
 				auto y = m_vert_low_limit + hor_lines_distance * index;
 
-				BasicShapes::draw_dash_line(screen, 
+				BasicShapesDraw::draw_dash_line(screen, 
 					std::forward<W>(window),
 					pixel2d_buf,
 					pixel_2d_coord_normal{ m_hor_low_limit, y },
@@ -82,7 +82,7 @@ namespace BASIC_SHAPES_2D
 			{
 				auto x = m_hor_low_limit + ver_lines_distance * index;
 
-				BasicShapes::draw_dash_line(screen, 
+				BasicShapesDraw::draw_dash_line(screen, 
 					std::forward<W>(window),
 					pixel2d_buf,
 					pixel_2d_coord_normal{ x, m_vert_low_limit },

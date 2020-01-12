@@ -6,6 +6,7 @@
 #include "fft.h"
 #include "audio.h"
 #include "screen.h"
+#include "BasicShapesDraw.h"
 #include "BasicShapes.h"
 #include "DebugLog.h"
 #include "Effect.h"
@@ -44,13 +45,13 @@ int main(int argc, char* args[])
 
 	//create graphics
 	grid.draw(screen, window_1, pixel2d_buf);
-	BasicShapes::draw_dash_line(screen, window_1, pixel2d_buf, pixel_2d_coord_normal{ 0.5, 0.1 }, pixel_2d_coord_normal{ 0.5, 0.9 }, rgb_color_normalized{ colour_name::RED }, 0.1f, 0.01f);
-	BasicShapes::draw_dash_line(screen, window_1, pixel2d_buf, pixel_2d_coord_normal{ 0.5, 0.1 }, pixel_2d_coord_normal{ 0.5, 0.9 }, rgb_color_normalized{ colour_name::RED }, 0.1f, 0.01f);
-	BasicShapes::draw_dash_line(screen, window_1, pixel2d_buf, pixel_2d_coord_normal{ 0.1, 0.1 }, pixel_2d_coord_normal{ 0.9, 0.9 }, rgb_color_normalized{ colour_name::RED }, 0.1f, 0.01f);
+	BasicShapesDraw::draw_dash_line(screen, window_1, pixel2d_buf, pixel_2d_coord_normal{ 0.5, 0.1 }, pixel_2d_coord_normal{ 0.5, 0.9 }, rgb_color_normalized{ colour_name::RED }, 0.1f, 0.01f);
+	BasicShapesDraw::draw_dash_line(screen, window_1, pixel2d_buf, pixel_2d_coord_normal{ 0.5, 0.1 }, pixel_2d_coord_normal{ 0.5, 0.9 }, rgb_color_normalized{ colour_name::RED }, 0.1f, 0.01f);
+	BasicShapesDraw::draw_dash_line(screen, window_1, pixel2d_buf, pixel_2d_coord_normal{ 0.1, 0.1 }, pixel_2d_coord_normal{ 0.9, 0.9 }, rgb_color_normalized{ colour_name::RED }, 0.1f, 0.01f);
 
 	Screen::ScreenWindow window_screen{ {10, 600}, 100, 200 };
-	BasicShapes::draw_dash_line(screen, window_screen, pixel2d_buf, pixel_2d_coord{ 5, 5 }, pixel_2d_coord{ 80, 180 }, rgb_color_normalized{ colour_name::BLUE }, 0.1f, 0.01f);
-	BasicShapes::draw_dash_line(screen, window_screen, pixel2d_buf, pixel_2d_coord_normalized{ 0.1, 0.1 }, pixel_2d_coord_normalized{ 0.8, 05 }, rgb_color_normalized{ colour_name::BLUE }, 0.1f, 0.01f);
+	BasicShapesDraw::draw_dash_line(screen, window_screen, pixel2d_buf, pixel_2d_coord{ 5, 5 }, pixel_2d_coord{ 80, 180 }, rgb_color_normalized{ colour_name::BLUE }, 0.1f, 0.01f);
+	BasicShapesDraw::draw_dash_line(screen, window_screen, pixel2d_buf, pixel_2d_coord_normalized{ 0.1, 0.1 }, pixel_2d_coord_normalized{ 0.8, 05 }, rgb_color_normalized{ colour_name::BLUE }, 0.1f, 0.01f);
 	grid.draw(screen, window_screen, pixel2d_buf);
 	axis_x.draw(screen, window_screen, pixel2d_buf);
 	axis_y.draw(screen, window_screen, pixel2d_buf);
@@ -58,6 +59,17 @@ int main(int argc, char* args[])
 
 	axis_x.draw(screen, window_2, pixel2d_buf);
 	axis_y.draw(screen, window_2, pixel2d_buf);
+
+	SHAPES_2D::Line line(
+		screen,
+		window_screen,
+		pixel_2d_coord_normal{ 0.49, 0.07 }, pixel_2d_coord_normal{ 0.51, 0.91 },
+		rgb_color_normalized{1.f, 1.f, 0.f},
+		0.1f, 0.01f);
+//	SHAPES_2D::add_to_container(line, )
+	SHAPES_2D::draw(line, pixel2d_buf);
+	SHAPES_2D::update_window(line, Screen::ScreenWindow{ {100, 200}, 300, 100 });
+	SHAPES_2D::draw(line, pixel2d_buf);
 
 	screen->copy_to_screen_buf(pixel2d_buf);
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();

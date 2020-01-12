@@ -3,7 +3,7 @@
 #include "ErrorCode.h"
 #include "DebugLog.h"
 #include "Screen.h"
-#include "BasicShapes.h"
+#include "BasicShapesDraw.h"
 #include "BasicStructs.h"
 
 namespace BASIC_SHAPES_2D
@@ -44,7 +44,7 @@ namespace BASIC_SHAPES_2D
 			switch (m_type)
 			{
 			case Type::X:
-				BasicShapes::draw_line(
+				BasicShapesDraw::draw_line(
 					screen, 
 					window,
 					pixel2d_buf,
@@ -55,7 +55,7 @@ namespace BASIC_SHAPES_2D
 				break;
 
 			case Type::Y:
-				BasicShapes::draw_line(
+				BasicShapesDraw::draw_line(
 					screen, 
 					window,
 					pixel2d_buf,
