@@ -28,7 +28,7 @@ namespace BASIC_SHAPES_2D
 			, window_(window)
 		{}
 
-		Widget(Screen::ScreenWindow&& window, screen_ptr screen) 
+		Widget(Screen::ScreenWindow&& window, screen_ptr screen)
 			:screen_(screen)
 			, window_(window)
 		{}
@@ -39,6 +39,7 @@ namespace BASIC_SHAPES_2D
 		{}
 
 		virtual ~Widget() {}
+
 		Widget(const Widget& other)
 			:screen_(other.screen_)
 			, window_(other.window_)
@@ -63,7 +64,7 @@ namespace BASIC_SHAPES_2D
 			return index;
 		}
 
-		void delete_shape(size_t index)
+		void delete_shape_by_index(size_t index)
 		{
 			shapes_vec_.erase(shapes_vec_.begin() + index);
 		}
@@ -72,11 +73,18 @@ namespace BASIC_SHAPES_2D
 		ErrorCode update_window(W&& window)
 		{
 			window_ = window;
-			for (auto v : shapes_vec_)
-			{
-				v.update_window(window);
-			}
+			return ErrorCode::OK;
+		}
 
+		ErrorCode move_window(pixel_2d_coord&& coord)
+		{
+			window_.corner_coord = coord;
+			return ErrorCode::OK;
+		}
+
+		ErrorCode move_window(const pixel_2d_coord& coord)
+		{
+			window_.corner_coord = coord;
 			return ErrorCode::OK;
 		}
 
@@ -84,10 +92,16 @@ namespace BASIC_SHAPES_2D
 		{
 			for (auto v : shapes_vec_)
 			{
-				v.draw(pixel2d_buf);
+				v.draw(screen_, window_, pixel2d_buf);
 			}
 
 			return ErrorCode::OK;
 		}
 	};
+
+	template <typename COORD>
+	auto move_widget(Widget& widget, COORD&& coord)
+	{
+		return widget.move_window(coord);
+	}
 }

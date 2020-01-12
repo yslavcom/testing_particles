@@ -92,5 +92,8 @@
     <ClInclude Include="Src\basic_shapes\BasicShapes.h">
       <Filter>Source Files\basic_shapes</Filter>
     </ClInclude>
+    <ClInclude Include="Src\basic_shapes\Line.h">
+      <Filter>Source Files\basic_shapes</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

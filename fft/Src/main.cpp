@@ -13,7 +13,7 @@
 #include "Effect.h"
 #include "Grid.h"
 #include "Axis.h"
-
+#include "Line.h"
 
 using namespace TEST_SCREEN;
 using namespace BASIC_SHAPES_2D;
@@ -28,51 +28,24 @@ int main(int argc, char* args[])
 	screen->clear();
 
 	BASIC_EFFECTS::Effect effect;
-	Grid grid;
-	Axis axis_x(Axis::Type::X, {colour_name::RED});
-	Axis axis_y(Axis::Type::Y, { colour_name::RED });
 
-	std::vector<Screen::ScreenWindow> vector_of_scaling_windows;
+	
 
 #if 1
 	pixel_vec_2d pixel2d_buf(screen->SCREEN_WIDTH, screen->SCREEN_HEIGHT);
 
-	ScalingWindow window_1{ {0.7f, 0.5f}, 0.19f, 0.45f };
-	ScalingWindow window_2{ {0.2f, 0.2f}, 0.3f, 0.32f };
-	vector_of_scaling_windows.emplace_back(Screen::to_screen_window(window_1));
-	vector_of_scaling_windows.emplace_back(Screen::to_screen_window(window_2));
-
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
 	//create graphics
-	grid.draw(screen, window_1, pixel2d_buf);
-	BasicShapesDraw::draw_dash_line(screen, window_1, pixel2d_buf, pixel_2d_coord_normal{ 0.5, 0.1 }, pixel_2d_coord_normal{ 0.5, 0.9 }, rgb_color_normalized{ colour_name::RED }, 0.1f, 0.01f);
-	BasicShapesDraw::draw_dash_line(screen, window_1, pixel2d_buf, pixel_2d_coord_normal{ 0.5, 0.1 }, pixel_2d_coord_normal{ 0.5, 0.9 }, rgb_color_normalized{ colour_name::RED }, 0.1f, 0.01f);
-	BasicShapesDraw::draw_dash_line(screen, window_1, pixel2d_buf, pixel_2d_coord_normal{ 0.1, 0.1 }, pixel_2d_coord_normal{ 0.9, 0.9 }, rgb_color_normalized{ colour_name::RED }, 0.1f, 0.01f);
+	std::vector<Screen::ScreenWindow> vector_of_scaling_windows;
 
-	Screen::ScreenWindow window_screen{ {10, 600}, 100, 200 };
-	BasicShapesDraw::draw_dash_line(screen, window_screen, pixel2d_buf, pixel_2d_coord{ 5, 5 }, pixel_2d_coord{ 80, 180 }, rgb_color_normalized{ colour_name::BLUE }, 0.1f, 0.01f);
-	BasicShapesDraw::draw_dash_line(screen, window_screen, pixel2d_buf, pixel_2d_coord_normalized{ 0.1, 0.1 }, pixel_2d_coord_normalized{ 0.8, 05 }, rgb_color_normalized{ colour_name::BLUE }, 0.1f, 0.01f);
-	grid.draw(screen, window_screen, pixel2d_buf);
-	axis_x.draw(screen, window_screen, pixel2d_buf);
-	axis_y.draw(screen, window_screen, pixel2d_buf);
-	vector_of_scaling_windows.emplace_back(window_screen);
+	Grid grid;
+	Axis axis_x(Axis::Type::X, { colour_name::RED });
+	Axis axis_y(Axis::Type::Y, { colour_name::RED });
 
-	axis_x.draw(screen, window_2, pixel2d_buf);
-	axis_y.draw(screen, window_2, pixel2d_buf);
-
-	SHAPES_2D::Line line(
-		screen,
-		window_screen,
+	Line line(
 		pixel_2d_coord_normal{ 0.49, 0.07 }, pixel_2d_coord_normal{ 0.51, 0.91 },
 		rgb_color_normalized{1.f, 1.f, 0.f},
-		0.1f, 0.01f);
-
-	SHAPES_2D::Line other_line(
-		screen,
-		window_screen,
-		pixel_2d_coord_normal{ 0.09, 0.07 }, pixel_2d_coord_normal{ 0.51, 0.91 },
-		rgb_color_normalized{ .5f, 1.f, 0.f },
 		0.1f, 0.01f);
 
 	auto window_3 = Screen::ScreenWindow{ {100, 200}, 300, 50 };
@@ -81,15 +54,20 @@ int main(int argc, char* args[])
 	//test widget
 	Widget widget(ScalingWindow{}, screen);
 	widget.add_shape(line);
-	widget.add_shape(other_line);
-	widget.update_window(ScalingWindow{ {0.5, 0.5 }, 0.4, 0.4 });
-	widget.draw(pixel2d_buf);
-	widget.update_window(ScalingWindow{ {0.1, 0.5 }, 0.8, 0.35 });
+	widget.add_shape(grid);
+	widget.add_shape(axis_x);
+	widget.add_shape(axis_y);
+	widget.update_window(ScalingWindow{ {0.1, 0.1 }, 0.3, 0.4 });
 	widget.draw(pixel2d_buf);
 
-	axis_x.draw(screen, window_3, pixel2d_buf);
-	axis_y.draw(screen, window_3, pixel2d_buf);
-	
+	//pixel2d_buf.clear();
+
+	Widget widget2(widget);
+	widget2.delete_shape_by_index(1);
+	pixel_2d_coord new_coord{ 500, 500 };
+	//widget2.move_window(new_coord);
+	move_widget(widget2, pixel_2d_coord{ 500, 500 });
+	widget2.draw(pixel2d_buf);
 
 	screen->copy_to_screen_buf(pixel2d_buf);
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();

@@ -274,6 +274,11 @@ namespace BASIC_SHAPES_2D
 
 			return true;
 		}
+
+		void clear()
+		{
+			SDL_memset(ptr.get(), 0, size_in_bytes);
+		}
 	};
 
 

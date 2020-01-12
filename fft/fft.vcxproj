@@ -148,6 +148,7 @@
     <ClInclude Include="Src\axis\Axis.h" />
     <ClInclude Include="Src\basic_shapes\BasicShapes.h" />
     <ClInclude Include="Src\basic_shapes\BasicShapesDraw.h" />
+    <ClInclude Include="Src\basic_shapes\Line.h" />
     <ClInclude Include="Src\basic_structs\BasicStructs.h" />
     <ClInclude Include="Src\debug_log\DebugLog.h" />
     <ClInclude Include="Src\effect\Effect.h" />
