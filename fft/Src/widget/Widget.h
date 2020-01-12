@@ -24,8 +24,8 @@ namespace BASIC_SHAPES_2D
 		~virtual Widget();
 		Widget(const Widget& other);
 		Widget(Widget&& other);
-		Widget operator=(const Widget& other);
-		Widget operator=(Widget&& other);
+		Widget& operator=(const Widget& other);
+		Widget& operator=(Widget&& other);
 
 		ErrorCode add_shape();
 		ErrorCode draw();

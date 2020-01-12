@@ -36,11 +36,10 @@ namespace TEST_SCREEN
 			{}
 
 			ScreenWindow(const ScalingWindow& window)
-			{
-				corner_coord = pixel_2d_coord{ window.corner_coord, Screen::SCREEN_WIDTH, Screen::SCREEN_HEIGHT };
-				w = static_cast<size_t>(window.w * Screen::SCREEN_WIDTH);
-				h = static_cast<size_t>(window.h * Screen::SCREEN_HEIGHT);
-			}
+				:corner_coord(pixel_2d_coord{ window.corner_coord, Screen::SCREEN_WIDTH, Screen::SCREEN_HEIGHT })
+				, w(static_cast<size_t>(window.w* Screen::SCREEN_WIDTH))
+				, h(static_cast<size_t>(window.h* Screen::SCREEN_HEIGHT))
+			{}
 
 			ScreenWindow(const ScreenWindow& other)
 				:corner_coord(other.corner_coord)
@@ -55,7 +54,7 @@ namespace TEST_SCREEN
 				h = std::move(other.h);
 			}
 
-			ScreenWindow operator=(const ScreenWindow& other)
+			ScreenWindow& operator=(const ScreenWindow& other)
 			{
 				corner_coord = other.corner_coord;
 				w = other.w;
@@ -63,7 +62,7 @@ namespace TEST_SCREEN
 				return *this;
 			}
 
-			ScreenWindow operator=(ScreenWindow&& other)noexcept
+			ScreenWindow& operator=(ScreenWindow&& other)noexcept
 			{
 				corner_coord = std::move(other.corner_coord);
 				w = std::move(other.w);

@@ -4,29 +4,72 @@
 #include "BasicStructs.h"
 #include "ErrorCode.h"
 #include <vector>
+#include <memory>
 
 
 namespace SHAPES_2D
 {
 	using namespace TEST_SCREEN;
 
-	template<typename Derived>
+	/*
+	https://www.modernescpp.com/index.php/c-core-guidelines-type-erasure-with-templates
+	*/
 	class BaseShape
 	{
 	public:
+		template <typename T>
+		BaseShape(const T& obj) : object(std::make_shared<Model<T>>(std::forward<decltype(obj)>(obj))) {}
+
 		ErrorCode draw(pixel_vec_2d& pixel2d_buf)
 		{
-			return static_cast<Derived*>(this)->draw(pixel2d_buf);
+			return object->draw(pixel2d_buf);
 		}
 
-		template<typename W>
-		void update_window(W&& window)
+		ErrorCode update_window(Screen::ScreenWindow&& window)
 		{
-			static_cast<Derived*>(this)->update_window(window);
+			return object->update_window(std::forward<decltype(window)>(window));
 		}
+
+		ErrorCode update_window(const Screen::ScreenWindow& window)
+		{
+			return object->update_window(window);
+		}
+
+		struct Concept {
+			virtual ~Concept() {}
+			virtual ErrorCode draw(pixel_vec_2d& pixel2d_buf) = 0;
+
+			virtual ErrorCode update_window(Screen::ScreenWindow&& window) = 0;
+			virtual ErrorCode update_window(const Screen::ScreenWindow& window) = 0;
+		};
+
+		template <typename T>
+		struct Model : Concept
+		{
+			Model(const T& t) : object(t) {}
+
+			ErrorCode draw(pixel_vec_2d& pixel2d_buf)  override {
+				return object.draw(pixel2d_buf);
+			}
+
+			ErrorCode update_window(Screen::ScreenWindow&& window) override
+			{
+				return object.update_window(window);
+			}
+
+			ErrorCode update_window(const Screen::ScreenWindow& window) override
+			{
+				return object.update_window(window);
+			}
+
+		private:
+			T object;
+		};
+
+		std::shared_ptr< Concept> object;
 	};
 
-	class Line : BaseShape<Line>
+	class Line
 	{
 		screen_ptr screen_;
 		Screen::ScreenWindow window_;
@@ -52,6 +95,16 @@ namespace SHAPES_2D
 			, spacing_len_norm_(spacing_len_norm)
 		{}
 
+		Line(const Line& other)
+			: screen_(other.screen_)
+			, window_(other.window_)
+			, start_coord_(other.start_coord_)
+			, end_coord_(other.end_coord_)
+			, colour_(other.colour_)
+			, dash_len_norm_(other.dash_len_norm_)
+			, spacing_len_norm_(other.spacing_len_norm_)
+		{}
+
 	public:
 		ErrorCode draw(pixel_vec_2d& pixel2d_buf)
 		{
@@ -65,29 +118,33 @@ namespace SHAPES_2D
 			return rc;
 		}
 
-		template<typename W>
-		void update_window(W&& window)
+		auto update_window(Screen::ScreenWindow&& window)->ErrorCode
 		{
 			window_ = window;
+			return ErrorCode::OK;
 		}
 
+		auto update_window(const Screen::ScreenWindow& window)->ErrorCode
+		{
+			window_ = window;
+			return ErrorCode::OK;
+		}
 	};
 
 	template <typename T>
-	auto draw(T& base, pixel_vec_2d& pixel2d_buf) {
-		return base.draw(pixel2d_buf);
-	}
-
-	template <typename T, typename W>
-	void update_window(T& base, W&& window)
-	{
-		base.update_window(window);
+	auto draw(T&& baseShape, pixel_vec_2d & pixel2d_buf) {
+			return baseShape.draw(pixel2d_buf);
 	}
 
 	template <typename T>
-	void add_to_container(T& base, std::vector<T>& contain)
+	ErrorCode update_window(T& base, Screen::ScreenWindow && window)
 	{
-		contain.emplace_back(base);
+		return base.update_window(window);
 	}
 
+	template <typename T>
+	ErrorCode update_window(T& base, const Screen::ScreenWindow& window)
+	{
+		return base.update_window(window);
+	}
 }

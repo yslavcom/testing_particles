@@ -66,10 +66,30 @@ int main(int argc, char* args[])
 		pixel_2d_coord_normal{ 0.49, 0.07 }, pixel_2d_coord_normal{ 0.51, 0.91 },
 		rgb_color_normalized{1.f, 1.f, 0.f},
 		0.1f, 0.01f);
-//	SHAPES_2D::add_to_container(line, )
-	SHAPES_2D::draw(line, pixel2d_buf);
-	SHAPES_2D::update_window(line, Screen::ScreenWindow{ {100, 200}, 300, 100 });
-	SHAPES_2D::draw(line, pixel2d_buf);
+
+	SHAPES_2D::Line other_line(
+		screen,
+		window_screen,
+		pixel_2d_coord_normal{ 0.09, 0.07 }, pixel_2d_coord_normal{ 0.51, 0.91 },
+		rgb_color_normalized{ .5f, 1.f, 0.f },
+		0.1f, 0.01f);
+
+	auto window_3 = Screen::ScreenWindow{ {100, 200}, 300, 50 };
+	vector_of_scaling_windows.emplace_back(window_3);
+	auto baseShape = SHAPES_2D::BaseShape(line);
+	auto otherBaseShape = SHAPES_2D::BaseShape(other_line);
+
+	std::vector<SHAPES_2D::BaseShape> vec = { baseShape ,otherBaseShape };
+	std::for_each(vec.begin(), vec.end(), 
+		[&](auto &el)
+		{
+			SHAPES_2D::update_window(el, window_3);
+			SHAPES_2D::draw(el, pixel2d_buf);
+		});
+
+	axis_x.draw(screen, window_3, pixel2d_buf);
+	axis_y.draw(screen, window_3, pixel2d_buf);
+	
 
 	screen->copy_to_screen_buf(pixel2d_buf);
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();

@@ -24,7 +24,7 @@ namespace BASIC_SHAPES_2D
 		rgb_color_normalized():r(0), g(0), b(0)
 		{
 		}
-		rgb_color_normalized(rgb_color_normalized& colour)
+		rgb_color_normalized(const rgb_color_normalized& colour)
 			:r(colour.r)
 			, g(colour.g)
 			, b(colour.b)
@@ -51,7 +51,7 @@ namespace BASIC_SHAPES_2D
 		{
 			assign_color(color);
 		}
-		rgb_color_normalized operator=(const colour_name&& color)
+		rgb_color_normalized& operator=(const colour_name&& color)
 		{
 			assign_color(color);
 			return *this;
@@ -139,14 +139,14 @@ namespace BASIC_SHAPES_2D
 			ver = std::move(other.ver);
 		}
 
-		pixel_2d_coord_normalized operator=(const pixel_2d_coord_normalized& other)
+		pixel_2d_coord_normalized& operator=(const pixel_2d_coord_normalized& other)
 		{
 			hor = other.hor;
 			ver = other.ver;
 			return *this;
 		}
 
-		pixel_2d_coord_normalized operator=(pixel_2d_coord_normalized&& other)noexcept
+		pixel_2d_coord_normalized& operator=(pixel_2d_coord_normalized&& other)noexcept
 		{
 			hor = std::move(other.hor);
 			ver = std::move(other.ver);
@@ -198,14 +198,14 @@ namespace BASIC_SHAPES_2D
 			ver = std::move(other.ver);
 		}
 
-		pixel_2d_coord operator=(const pixel_2d_coord& other)
+		pixel_2d_coord& operator=(const pixel_2d_coord& other)
 		{
 			hor = other.hor;
 			ver = other.ver;
 			return *this;
 		}
 
-		pixel_2d_coord operator=(pixel_2d_coord&& other)noexcept
+		pixel_2d_coord& operator=(pixel_2d_coord&& other)noexcept
 		{
 			hor = std::move(other.hor);
 			ver = std::move(other.ver);
@@ -341,7 +341,7 @@ namespace BASIC_SHAPES_2D
 			h = std::move(other.h);
 		}
 
-		ScalingWindow operator=(const ScalingWindow& other)
+		ScalingWindow& operator=(const ScalingWindow& other)
 		{
 			corner_coord = other.corner_coord;
 			w = other.w;
@@ -349,7 +349,7 @@ namespace BASIC_SHAPES_2D
 			return *this;
 		}
 
-		ScalingWindow operator=(ScalingWindow&& other)noexcept
+		ScalingWindow& operator=(ScalingWindow&& other)noexcept
 		{
 			corner_coord = std::move(other.corner_coord);
 			w = std::move(other.w);
