@@ -8,6 +8,7 @@
 #include "screen.h"
 #include "BasicShapesDraw.h"
 #include "BasicShapes.h"
+#include "Widget.h"
 #include "DebugLog.h"
 #include "Effect.h"
 #include "Grid.h"
@@ -76,16 +77,15 @@ int main(int argc, char* args[])
 
 	auto window_3 = Screen::ScreenWindow{ {100, 200}, 300, 50 };
 	vector_of_scaling_windows.emplace_back(window_3);
-	auto baseShape = SHAPES_2D::BaseShape(line);
-	auto otherBaseShape = SHAPES_2D::BaseShape(other_line);
 
-	std::vector<SHAPES_2D::BaseShape> vec = { baseShape ,otherBaseShape };
-	std::for_each(vec.begin(), vec.end(), 
-		[&](auto &el)
-		{
-			SHAPES_2D::update_window(el, window_3);
-			SHAPES_2D::draw(el, pixel2d_buf);
-		});
+	//test widget
+	Widget widget(ScalingWindow{}, screen);
+	widget.add_shape(line);
+	widget.add_shape(other_line);
+	widget.update_window(ScalingWindow{ {0.5, 0.5 }, 0.4, 0.4 });
+	widget.draw(pixel2d_buf);
+	widget.update_window(ScalingWindow{ {0.1, 0.5 }, 0.8, 0.35 });
+	widget.draw(pixel2d_buf);
 
 	axis_x.draw(screen, window_3, pixel2d_buf);
 	axis_y.draw(screen, window_3, pixel2d_buf);

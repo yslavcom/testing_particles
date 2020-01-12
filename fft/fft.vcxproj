@@ -70,11 +70,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)\Src\axis;$(SolutionDir)\Src\effect;$(SolutionDir)\Src\basic_structs;$(SolutionDir)\Src\graph;$(SolutionDir)\Src\grid;$(SolutionDir)\Src\debug_log;$(SolutionDir)\Src\screen;$(SolutionDir)\Src\basic_shapes;$(SolutionDir)\Src\error_code;D:\c++\SDL\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Src\axis;$(SolutionDir)\Src\effect;$(SolutionDir)\Src\widget;$(SolutionDir)\Src\basic_structs;$(SolutionDir)\Src\graph;$(SolutionDir)\Src\grid;$(SolutionDir)\Src\debug_log;$(SolutionDir)\Src\screen;$(SolutionDir)\Src\basic_shapes;$(SolutionDir)\Src\error_code;D:\c++\SDL\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
     <LibraryPath>D:\c++\SDL\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)\Src\axis;$(SolutionDir)\Src\effect;$(SolutionDir)\Src\basic_structs;$(SolutionDir)\Src\graph;$(SolutionDir)\Src\grid;$(SolutionDir)\Src\debug_log;$(SolutionDir)\Src\screen;$(SolutionDir)\Src\basic_shapes;$(SolutionDir)\Src\error_code;D:\c++\SDL\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Src\axis;$(SolutionDir)\Src\effect;$(SolutionDir)\Src\widget;$(SolutionDir)\Src\basic_structs;$(SolutionDir)\Src\graph;$(SolutionDir)\Src\grid;$(SolutionDir)\Src\debug_log;$(SolutionDir)\Src\screen;$(SolutionDir)\Src\basic_shapes;$(SolutionDir)\Src\error_code;D:\c++\SDL\SDL2-devel-2.0.10-VC\SDL2-2.0.10\include;$(IncludePath)</IncludePath>
     <LibraryPath>D:\c++\SDL\SDL2-devel-2.0.10-VC\SDL2-2.0.10\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

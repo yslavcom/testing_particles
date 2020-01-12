@@ -29,6 +29,10 @@ namespace TEST_SCREEN
 			size_t w;
 			size_t h;
 
+			ScreenWindow()
+				:corner_coord(), w(0), h(0)
+			{}
+
 			ScreenWindow(const pixel_2d_coord& corner_coord, size_t w, size_t h)
 				:corner_coord(corner_coord)
 				, w(w)
