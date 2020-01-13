@@ -9,6 +9,7 @@
 #include "ErrorCode.h"
 #include "DebugLog.h"
 #include "BasicStructs.h"
+#include "Pipe.h"
 
 namespace TEST_SCREEN
 {
@@ -103,15 +104,6 @@ namespace TEST_SCREEN
 		static int SCREEN_WIDTH;
 		static int SCREEN_HEIGHT;
 
-		enum  class EventType
-		{
-			LeftMouseDown, // left mouse button pressed
-			MouseDragging, // left mouse button down & mouse is moving
-			Quit, // quit app event
-		};
-
-		using EventContainer = std::variant<pixel_2d_coord, std::monostate>;
-
 	private:
 		class ScreenResources;
 		std::unique_ptr<ScreenResources> screenResources;
@@ -121,7 +113,6 @@ namespace TEST_SCREEN
 		virtual ~Screen();
 		ErrorCode init(int w, int h);
 
-#if 1
 		template<typename W>
 			static inline ScreenWindow to_screen_window(W&& window)
 		{
@@ -135,47 +126,6 @@ namespace TEST_SCREEN
 			ScreenWindow w(window);
 			return w;
 		}
-#else
-		template<typename W
-			, typename std::enable_if<std::is_same<std::remove_cv_t<W>, Screen::ScreenWindow>::value, std::nullptr_t > ::type = nullptr>
-		static inline ScreenWindow to_screen_window(W&& window)
-		{
-			Screen::ScreenWindow w(window);
-			return w;
-		}
-
-		template<typename W
-			, typename std::enable_if<std::is_same<std::remove_cv_t<W>, Screen::ScreenWindow>::value, std::nullptr_t > ::type = nullptr>
-			static inline ScreenWindow to_screen_window(W& window)
-		{
-			Screen::ScreenWindow w(window);
-			return w;
-		}
-
-		template<typename W
-			, typename std::enable_if<std::is_same<std::remove_cv_t<W>, ScalingWindow>::value, std::nullptr_t > ::type = nullptr>
-			static inline ScreenWindow to_screen_window(W&& window)
-		{
-			ScalingWindow w(window);
-			auto w_coord = pixel_2d_coord{ std::forward<decltype(w.corner_coord)>(w.corner_coord), Screen::SCREEN_WIDTH, Screen::SCREEN_HEIGHT };
-			size_t w_w = w.w * Screen::SCREEN_WIDTH;
-			size_t w_h = w.h * Screen::SCREEN_HEIGHT;
-
-			return { w_coord , w_w, w_h };
-		}
-
-		template<typename W
-			, typename std::enable_if<std::is_same<std::remove_cv_t<W>, ScalingWindow>::value, std::nullptr_t > ::type = nullptr>
-			static inline ScreenWindow to_screen_window(W& window)
-		{
-			ScalingWindow w(window);
-			auto w_coord = pixel_2d_coord{ std::forward<decltype(w.corner_coord)>(w.corner_coord), Screen::SCREEN_WIDTH, Screen::SCREEN_HEIGHT };
-			size_t w_w = w.w * Screen::SCREEN_WIDTH;
-			size_t w_h = w.h * Screen::SCREEN_HEIGHT;
-
-			return { w_coord , w_w, w_h };
-		}
-#endif
 
 		template<typename T, typename W>
 		static inline pixel_2d_coord convert_normalized_to_pixel_2d_coord(T&& pixel_2d_coord_norm, W&& window)
@@ -241,7 +191,6 @@ namespace TEST_SCREEN
 		void clear_render();
 		void update_from_pixel_buffer();
 		void present_render();
-		std::optional<std::pair<EventType, EventContainer>> processEvents();
 		void close();
 		void clear();
 		void boxBlur();

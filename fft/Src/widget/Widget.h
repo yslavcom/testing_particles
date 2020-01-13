@@ -99,9 +99,9 @@ namespace BASIC_SHAPES_2D
 		}
 	};
 
-	template <typename COORD>
-	auto move_widget(Widget& widget, COORD&& coord)
+	template <typename T, typename COORD>
+	auto move_widget(T&& obj, COORD&& coord)
 	{
-		return widget.move_window(coord);
+		return obj.move_window(coord);
 	}
 }

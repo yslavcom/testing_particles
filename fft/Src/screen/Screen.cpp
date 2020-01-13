@@ -190,45 +190,6 @@ namespace TEST_SCREEN
 		SDL_RenderPresent(screenResources->m_renderer.get());
 	}
 
-	std::optional<std::pair<Screen::EventType, Screen::EventContainer>> Screen::processEvents()
-	{
-		SDL_Event event;
-		while (SDL_PollEvent(&event))
-		{
-			switch (event.type)
-			{
-			case SDL_QUIT:
-			{
-				return std::make_pair<EventType, EventContainer>(Screen::EventType::Quit, std::monostate());
-			}break;
-
-			case SDL_MOUSEBUTTONDOWN:
-			{
-				if (SDL_BUTTON(SDL_BUTTON_LEFT) == event.button.button)
-				{
-					pixel_2d_coord coord;
-					coord.hor = event.button.x;
-					coord.ver = event.button.y;
-					return std::make_pair<EventType, EventContainer>(Screen::EventType::LeftMouseDown, coord);
-				}
-			}break;
-
-			case SDL_MOUSEMOTION:
-			{
-				if (SDL_BUTTON_LMASK & event.motion.state)
-				{
-					pixel_2d_coord coord;
-					coord.hor = event.motion.x;
-					coord.ver = event.motion.y;
-					return std::make_pair<EventType, EventContainer>(Screen::EventType::MouseDragging, coord);
-				}
-			}
-			}break;
-
-		}
-		return {};
-	}
-
 	void Screen::close()
 	{
 		SDL_Quit();

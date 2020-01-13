@@ -14,6 +14,7 @@
 #include "Grid.h"
 #include "Axis.h"
 #include "Line.h"
+#include "Events.h"
 
 using namespace TEST_SCREEN;
 using namespace BASIC_SHAPES_2D;
@@ -29,7 +30,11 @@ int main(int argc, char* args[])
 
 	BASIC_EFFECTS::Effect effect;
 
-	
+	Events events;
+	events.register_event(Events::EventType::Quit, [&]() {
+		DebugLog::instance()->print("quitting...");
+		quit = true; 
+		});
 
 #if 1
 	pixel_vec_2d pixel2d_buf(screen->SCREEN_WIDTH, screen->SCREEN_HEIGHT);
@@ -89,43 +94,8 @@ int main(int argc, char* args[])
 			//DebugLog::instance()->print("dt = " + std::to_string(std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()) + "[ us ]");
 		}
 
-
-		auto is_event = screen->processEvents();
-		if (is_event.has_value())
-		{
-			switch (is_event.value().first)
-			{
-			case Screen::EventType::Quit:
-				quit = true;
-				DebugLog::instance()->print("quitting...");
-				break;
-
-			case Screen::EventType::LeftMouseDown:
-			{
-				auto click_coord = std::get_if<pixel_2d_coord>(&is_event.value().second);
-				if (nullptr != click_coord)
-				{
-					std::accumulate(vector_of_scaling_windows.begin()
-						, vector_of_scaling_windows.end()
-						, 0
-						, [=](int index, auto& w)->int
-						{
-							if (click_coord->hor >= w.get_vertex_coord(Screen::ScreenWindow::Vertex::A).hor
-								&& click_coord->hor <= w.get_vertex_coord(Screen::ScreenWindow::Vertex::B).hor)
-							{
-								if (click_coord->ver >= w.get_vertex_coord(Screen::ScreenWindow::Vertex::C).ver
-									&& click_coord->ver <= w.get_vertex_coord(Screen::ScreenWindow::Vertex::A).ver)
-								{
-									DebugLog::instance()->print("window # " + std::to_string(index) + " clicked");
-								}
-							}
-							return index + 1;
-						});
-				}
-			}
-				break;
-			}
-		}
+		events.listen_events();
+		events.process_events();
 	}
 
 	return 0;
