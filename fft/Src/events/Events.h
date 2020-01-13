@@ -15,7 +15,8 @@ using namespace BASIC_SHAPES_2D;
 class Events
 {
 public:
-	using pEventFunc = std::function<void(void)>;
+	using pPlainEventFunc = std::function<void(void)>;
+	using pCoordEventFunc = std::function<void(const pixel_2d_coord* )>;
 
 	enum  class EventType
 	{
@@ -30,7 +31,8 @@ public:
 private:
 	std::mutex mut;
 	std::unique_ptr<ThreadsafePipe<event_pair_t>> pipe;
-	std::map<EventType, pEventFunc> registeredEvents;
+	std::map<EventType, pPlainEventFunc> simpleEvents;
+	std::map<EventType, pCoordEventFunc> coordEvents;
 
 public:
 
@@ -47,21 +49,28 @@ public:
 		std::lock_guard<std::mutex> lk(mut);
 
 		pipe = std::move(other.pipe);
-		registeredEvents = std::move(other.registeredEvents);
+		simpleEvents = std::move(other.simpleEvents);
+		coordEvents = std::move(other.coordEvents);
 	}
 	Events& operator=(Events&& other)
 	{
 		std::lock_guard<std::mutex> lk(mut);
 
 		this->pipe = std::move(other.pipe);
-		this->registeredEvents = std::move(other.registeredEvents);
+		this->simpleEvents = std::move(other.simpleEvents);
+		this->coordEvents = std::move(other.coordEvents);
 		return *this;
 	}
 	Events& operator=(const Events& other) = delete;
 
-	void register_event(EventType eventType, pEventFunc fn)
+	void register_event(EventType eventType, pPlainEventFunc fn)
 	{
-		registeredEvents[eventType] = fn;
+		simpleEvents[eventType] = fn;
+	}
+
+	void register_event(EventType eventType, pCoordEventFunc fn)
+	{
+		coordEvents[eventType] = fn;
 	}
 
 	/*
@@ -105,56 +114,71 @@ public:
 		}
 	}
 
-	void process_events()
+	void process_events(const bool& quit)
 	{
-		std::lock_guard<std::mutex> lk(mut);
+		while (false == quit) {
+			std::lock_guard<std::mutex> lk(mut);
 
-		event_pair_t is_event;
-		if (pipe->try_pop(is_event))
-		{
-			auto search = registeredEvents.find(is_event.first);
-			if (search != registeredEvents.end())
+			event_pair_t is_event;
+			if (pipe->try_pop(is_event))
 			{
-				if (search->second)
+				auto search = simpleEvents.find(is_event.first);
+				if (search != simpleEvents.end())
 				{
-					auto fn = search->second;
-					fn();
+					if (search->second)
+					{
+						auto fn = search->second;
+						fn();
+					}
 				}
-			}
-#if 0
-			switch (is_event.first)
-			{
-			case EventType::Quit:
-				break;
-
-			case EventType::LeftMouseDown:
-			{
-				auto click_coord = std::get_if<pixel_2d_coord>(&is_event.second);
-				if (nullptr != click_coord)
-				{
-					std::accumulate(vector_of_scaling_windows.begin()
-						, vector_of_scaling_windows.end()
-						, 0
-						, [=](int index, auto& w)->int
+				else {
+					auto search = coordEvents.find(is_event.first);
+					if (search != coordEvents.end())
+					{
+						if (search->second)
 						{
-							if (click_coord->hor >= w.get_vertex_coord(Screen::ScreenWindow::Vertex::A).hor
-								&& click_coord->hor <= w.get_vertex_coord(Screen::ScreenWindow::Vertex::B).hor)
-							{
-								if (click_coord->ver >= w.get_vertex_coord(Screen::ScreenWindow::Vertex::C).ver
-									&& click_coord->ver <= w.get_vertex_coord(Screen::ScreenWindow::Vertex::A).ver)
-								{
-									DebugLog::instance()->print("window # " + std::to_string(index) + " clicked");
-								}
-							}
-							return index + 1;
-						});
+							auto fn = search->second;
+							auto coord = std::get_if<pixel_2d_coord>(&is_event.second);
+							fn(coord);
+						}
+					}
 				}
-			}
-			break;
-			}
-#endif
-		}
 
+#if 0
+				switch (is_event.first)
+				{
+				case EventType::Quit:
+					break;
+
+				case EventType::LeftMouseDown:
+				{
+					auto click_coord = std::get_if<pixel_2d_coord>(&is_event.second);
+					if (nullptr != click_coord)
+					{
+						std::accumulate(vector_of_scaling_windows.begin()
+							, vector_of_scaling_windows.end()
+							, 0
+							, [=](int index, auto& w)->int
+							{
+								if (click_coord->hor >= w.get_vertex_coord(Screen::ScreenWindow::Vertex::A).hor
+									&& click_coord->hor <= w.get_vertex_coord(Screen::ScreenWindow::Vertex::B).hor)
+								{
+									if (click_coord->ver >= w.get_vertex_coord(Screen::ScreenWindow::Vertex::C).ver
+										&& click_coord->ver <= w.get_vertex_coord(Screen::ScreenWindow::Vertex::A).ver)
+									{
+										DebugLog::instance()->print("window # " + std::to_string(index) + " clicked");
+									}
+								}
+								return index + 1;
+							});
+					}
+				}
+				break;
+				}
+#endif
+			}
+
+		}
 	}
 
 };

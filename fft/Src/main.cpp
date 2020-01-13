@@ -19,6 +19,7 @@
 using namespace TEST_SCREEN;
 using namespace BASIC_SHAPES_2D;
 
+
 int main(int argc, char* args[])
 {
 	bool quit = false;
@@ -30,19 +31,37 @@ int main(int argc, char* args[])
 
 	BASIC_EFFECTS::Effect effect;
 
+	//create events
 	Events events;
 	events.register_event(Events::EventType::Quit, [&]() {
 		DebugLog::instance()->print("quitting...");
 		quit = true; 
 		});
 
-#if 1
+	events.register_event(Events::EventType::MouseDragging, [&](const pixel_2d_coord* coord) {
+		if (nullptr != coord)
+		{
+			DebugLog::instance()->print("mouse dragged..." + std::to_string(coord->hor) + " " + std::to_string(coord->ver));
+		}
+		});
+
+	events.register_event(Events::EventType::LeftMouseDown, [&](const pixel_2d_coord* coord) {
+		if (nullptr != coord)
+		{
+			DebugLog::instance()->print("mouse clicked..." + std::to_string(coord->hor) + " " + std::to_string(coord->ver));
+		}
+		});
+
+
+	std::thread thread__process_event([&] {events.process_events(quit); });
+
+
+	//create graphics
 	pixel_vec_2d pixel2d_buf(screen->SCREEN_WIDTH, screen->SCREEN_HEIGHT);
 
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
-	//create graphics
-	std::vector<Screen::ScreenWindow> vector_of_scaling_windows;
+	
 
 	Grid grid;
 	Axis axis_x(Axis::Type::X, { colour_name::RED });
@@ -54,7 +73,6 @@ int main(int argc, char* args[])
 		0.1f, 0.01f);
 
 	auto window_3 = Screen::ScreenWindow{ {100, 200}, 300, 50 };
-	vector_of_scaling_windows.emplace_back(window_3);
 
 	//test widget
 	Widget widget(ScalingWindow{}, screen);
@@ -77,8 +95,8 @@ int main(int argc, char* args[])
 	screen->copy_to_screen_buf(pixel2d_buf);
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 	DebugLog::instance()->print("dt = " + std::to_string(std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()) + "[ us ]");
-#endif
 
+	//main program loop
 	for (; quit == false;)
 	{
 		{
@@ -95,8 +113,9 @@ int main(int argc, char* args[])
 		}
 
 		events.listen_events();
-		events.process_events();
 	}
+
+	thread__process_event.join();
 
 	return 0;
 }

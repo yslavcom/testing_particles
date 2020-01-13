@@ -1,6 +1,7 @@
 #pragma once
 
 #include<vector>
+#include<map>
 #include "Screen.h"
 #include "ErrorCode.h"
 #include "BasicShapes.h"
@@ -96,6 +97,34 @@ namespace BASIC_SHAPES_2D
 			}
 
 			return ErrorCode::OK;
+		}
+	};
+
+	struct WidgetWindows
+	{
+		std::vector<Screen::ScreenWindow> windows;
+		std::map<Screen::ScreenWindow, const Widget&> map_widget;
+
+		template<typename COORD>
+		auto get_widget(COORD&& click_coord)
+		{
+			auto result = std::accumulate(windows.begin()
+				, windows.end()
+				, 0
+				, [=](std::vector<COORD>vec, auto& w)->int
+				{
+					if (click_coord->hor >= w.get_vertex_coord(Screen::ScreenWindow::Vertex::A).hor
+						&& click_coord->hor <= w.get_vertex_coord(Screen::ScreenWindow::Vertex::B).hor)
+					{
+						if (click_coord->ver >= w.get_vertex_coord(Screen::ScreenWindow::Vertex::C).ver
+							&& click_coord->ver <= w.get_vertex_coord(Screen::ScreenWindow::Vertex::A).ver)
+						{
+							vec.emplace_back(w);
+							DebugLog::instance()->print("window clicked");
+						}
+					}
+					return vec;
+				});
 		}
 	};
 
