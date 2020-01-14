@@ -46,6 +46,9 @@
     <Filter Include="Source Files\events">
       <UniqueIdentifier>{49f70b70-07ba-429a-b1e8-d5d873f4b650}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\app_state">
+      <UniqueIdentifier>{a6ec277b-76fa-472c-8d85-ff249916a33b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\main.cpp">
@@ -106,6 +109,9 @@
     </ClInclude>
     <ClInclude Include="Src\events\Events.h">
       <Filter>Source Files\events</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\app_state\AppState.h">
+      <Filter>Source Files\app_state</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -15,6 +15,7 @@
 #include "Axis.h"
 #include "Line.h"
 #include "Events.h"
+#include "AppState.h"
 
 using namespace TEST_SCREEN;
 using namespace BASIC_SHAPES_2D;
@@ -22,20 +23,15 @@ using namespace BASIC_SHAPES_2D;
 
 int main(int argc, char* args[])
 {
-	bool quit = false;
-
-	screen_ptr screen = std::make_shared<Screen>();
-
-	screen->init(1024, 768);
-	screen->clear();
-
-	BASIC_EFFECTS::Effect effect;
+	auto application = APP_STATE::AppState::instance();
+	application->init_resources();
 
 	//create events
 	Events events;
 	events.register_event(Events::EventType::Quit, [&]() {
 		DebugLog::instance()->print("quitting...");
-		quit = true; 
+
+		APP_STATE::AppState::instance()->shutting_down();
 		});
 
 	events.register_event(Events::EventType::MouseDragging, [&](const pixel_2d_coord& coord) {
@@ -47,8 +43,21 @@ int main(int argc, char* args[])
 		});
 
 
-	std::thread thread__process_event([&] {events.process_events(quit); });
+	std::thread thread__process_event([&] {
+		while (application->is_processing())
+		{
+			events.process_events();
+		}
+		}
+	);
 
+
+	screen_ptr screen = std::make_shared<Screen>();
+
+	screen->init(1024, 768);
+	screen->clear();
+
+	BASIC_EFFECTS::Effect effect;
 
 	//create graphics
 	pixel_vec_2d pixel2d_buf(screen->SCREEN_WIDTH, screen->SCREEN_HEIGHT);
@@ -91,7 +100,8 @@ int main(int argc, char* args[])
 	DebugLog::instance()->print("dt = " + std::to_string(std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()) + "[ us ]");
 
 	//main program loop
-	for (; quit == false;)
+	APP_STATE::AppState::instance()->run();
+	while(APP_STATE::AppState::instance()->is_running())
 	{
 		{
 			/*
@@ -110,6 +120,8 @@ int main(int argc, char* args[])
 	}
 
 	thread__process_event.join();
+
+	APP_STATE::AppState::instance()->shut();
 
 	return 0;
 }

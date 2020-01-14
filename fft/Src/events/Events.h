@@ -127,76 +127,73 @@ public:
 		}
 	}
 
-	void process_events(const bool& quit)
+	void process_events()
 	{
-		while (false == quit) {
-			std::lock_guard<std::mutex> lk(mut);
+		std::lock_guard<std::mutex> lk(mut);
 
-			event_pair_t is_event;
-			auto event_pair_ptr = pipe->wait_and_pop();
+		event_pair_t is_event;
+		auto event_pair_ptr = pipe->wait_and_pop();
 
-			if(nullptr != event_pair_ptr) // ok, we have an event
+		if (nullptr != event_pair_ptr) // ok, we have an event
+		{
+			auto foo_container = mapEvents.find(event_pair_ptr->first); // get the variant with functions
+			if (foo_container != mapEvents.end())
 			{
-				auto foo_container = mapEvents.find(event_pair_ptr->first); // get the variant with functions
-				if (foo_container != mapEvents.end())
+				auto fn_opt = get_if<pCoordEventFunc>(foo_container->second); // optionally get the function
+				if (fn_opt.has_value())
 				{
-					auto fn_opt = get_if<pCoordEventFunc>(foo_container->second); // optionally get the function
+					auto params_opt = get_if<pixel_2d_coord, EventContainer>(event_pair_ptr->second); // opionally get the function params
+					if (params_opt.has_value())
+					{
+						auto fn = fn_opt.value();
+						auto params = params_opt.value();
+						fn(params);
+					}
+				}
+				else
+				{
+					auto fn_opt = get_if<pPlainEventFunc>(foo_container->second); // optionally get the function
 					if (fn_opt.has_value())
 					{
-						auto params_opt = get_if<pixel_2d_coord, EventContainer>(event_pair_ptr->second); // opionally get the function params
-						if (params_opt.has_value())
-						{
-							auto fn = fn_opt.value();
-							auto params = params_opt.value();
-							fn(params);
-						}
-					}
-					else
-					{
-						auto fn_opt = get_if<pPlainEventFunc>(foo_container->second); // optionally get the function
-						if (fn_opt.has_value())
-						{
-							auto fn = fn_opt.value();
-							fn();
-						}
+						auto fn = fn_opt.value();
+						fn();
 					}
 				}
-
-#if 0
-				// -- detect click inside a window
-				switch (is_event.first)
-				{
-				case EventType::Quit:
-					break;
-
-				case EventType::LeftMouseDown:
-				{
-					auto click_coord = std::get_if<pixel_2d_coord>(&is_event.second);
-					if (nullptr != click_coord)
-					{
-						std::accumulate(vector_of_scaling_windows.begin()
-							, vector_of_scaling_windows.end()
-							, 0
-							, [=](int index, auto& w)->int
-							{
-								if (click_coord->hor >= w.get_vertex_coord(Screen::ScreenWindow::Vertex::A).hor
-									&& click_coord->hor <= w.get_vertex_coord(Screen::ScreenWindow::Vertex::B).hor)
-								{
-									if (click_coord->ver >= w.get_vertex_coord(Screen::ScreenWindow::Vertex::C).ver
-										&& click_coord->ver <= w.get_vertex_coord(Screen::ScreenWindow::Vertex::A).ver)
-									{
-										DebugLog::instance()->print("window # " + std::to_string(index) + " clicked");
-									}
-								}
-								return index + 1;
-							});
-					}
-				}
-				break;
-				}
-#endif
 			}
 
+#if 0
+			// -- detect click inside a window
+			switch (is_event.first)
+			{
+			case EventType::Quit:
+				break;
+
+			case EventType::LeftMouseDown:
+			{
+				auto click_coord = std::get_if<pixel_2d_coord>(&is_event.second);
+				if (nullptr != click_coord)
+				{
+					std::accumulate(vector_of_scaling_windows.begin()
+						, vector_of_scaling_windows.end()
+						, 0
+						, [=](int index, auto& w)->int
+						{
+							if (click_coord->hor >= w.get_vertex_coord(Screen::ScreenWindow::Vertex::A).hor
+								&& click_coord->hor <= w.get_vertex_coord(Screen::ScreenWindow::Vertex::B).hor)
+							{
+								if (click_coord->ver >= w.get_vertex_coord(Screen::ScreenWindow::Vertex::C).ver
+									&& click_coord->ver <= w.get_vertex_coord(Screen::ScreenWindow::Vertex::A).ver)
+								{
+									DebugLog::instance()->print("window # " + std::to_string(index) + " clicked");
+								}
+							}
+							return index + 1;
+						});
+				}
+			}
+			break;
+			}
+#endif
 		}
 	}
 
