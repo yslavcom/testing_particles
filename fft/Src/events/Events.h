@@ -6,6 +6,8 @@
 #include <functional>
 #include <mutex>
 #include <map>
+#include <variant>
+#include <optional>
 
 #include "Pipe.h"
 #include "BasicStructs.h"
@@ -15,8 +17,15 @@ using namespace BASIC_SHAPES_2D;
 class Events
 {
 public:
+
+	//template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
+	//template<class... Ts> overload(Ts...)->overload<Ts...>;
+
+
 	using pPlainEventFunc = std::function<void(void)>;
-	using pCoordEventFunc = std::function<void(const pixel_2d_coord* )>;
+	using pCoordEventFunc = std::function<void(const pixel_2d_coord& )>;
+
+	using foo_container = std::variant<pPlainEventFunc, pCoordEventFunc>;
 
 	enum  class EventType
 	{
@@ -28,11 +37,21 @@ public:
 	using EventContainer = std::variant<pixel_2d_coord, std::monostate>;
 	using event_pair_t = std::pair<EventType, EventContainer>;
 
+
 private:
 	std::mutex mut;
 	std::unique_ptr<ThreadsafePipe<event_pair_t>> pipe;
-	std::map<EventType, pPlainEventFunc> simpleEvents;
-	std::map<EventType, pCoordEventFunc> coordEvents;
+	std::map<EventType, foo_container> mapEvents;
+
+private:
+	template<typename T, typename V>
+	auto get_if(V& v)->std::optional<T>
+	{
+		auto ptr = std::get_if<T>(&v);
+
+		if (nullptr == ptr) return{};
+		else return { *ptr };
+	}
 
 public:
 
@@ -49,28 +68,22 @@ public:
 		std::lock_guard<std::mutex> lk(mut);
 
 		pipe = std::move(other.pipe);
-		simpleEvents = std::move(other.simpleEvents);
-		coordEvents = std::move(other.coordEvents);
+		mapEvents = std::move(other.mapEvents);
 	}
 	Events& operator=(Events&& other)
 	{
 		std::lock_guard<std::mutex> lk(mut);
 
 		this->pipe = std::move(other.pipe);
-		this->simpleEvents = std::move(other.simpleEvents);
-		this->coordEvents = std::move(other.coordEvents);
+		this->mapEvents = std::move(other.mapEvents);
 		return *this;
 	}
 	Events& operator=(const Events& other) = delete;
 
-	void register_event(EventType eventType, pPlainEventFunc fn)
+	template <typename FOO>
+	void register_event(EventType eventType, FOO&& fn)
 	{
-		simpleEvents[eventType] = fn;
-	}
-
-	void register_event(EventType eventType, pCoordEventFunc fn)
-	{
-		coordEvents[eventType] = fn;
+		mapEvents[eventType] = fn;
 	}
 
 	/*
@@ -120,31 +133,37 @@ public:
 			std::lock_guard<std::mutex> lk(mut);
 
 			event_pair_t is_event;
-			if (pipe->try_pop(is_event))
+			auto event_pair_ptr = pipe->wait_and_pop();
+
+			if(nullptr != event_pair_ptr) // ok, we have an event
 			{
-				auto search = simpleEvents.find(is_event.first);
-				if (search != simpleEvents.end())
+				auto foo_container = mapEvents.find(event_pair_ptr->first); // get the variant with functions
+				if (foo_container != mapEvents.end())
 				{
-					if (search->second)
+					auto fn_opt = get_if<pCoordEventFunc>(foo_container->second); // optionally get the function
+					if (fn_opt.has_value())
 					{
-						auto fn = search->second;
-						fn();
-					}
-				}
-				else {
-					auto search = coordEvents.find(is_event.first);
-					if (search != coordEvents.end())
-					{
-						if (search->second)
+						auto params_opt = get_if<pixel_2d_coord, EventContainer>(event_pair_ptr->second); // opionally get the function params
+						if (params_opt.has_value())
 						{
-							auto fn = search->second;
-							auto coord = std::get_if<pixel_2d_coord>(&is_event.second);
-							fn(coord);
+							auto fn = fn_opt.value();
+							auto params = params_opt.value();
+							fn(params);
+						}
+					}
+					else
+					{
+						auto fn_opt = get_if<pPlainEventFunc>(foo_container->second); // optionally get the function
+						if (fn_opt.has_value())
+						{
+							auto fn = fn_opt.value();
+							fn();
 						}
 					}
 				}
 
 #if 0
+				// -- detect click inside a window
 				switch (is_event.first)
 				{
 				case EventType::Quit:

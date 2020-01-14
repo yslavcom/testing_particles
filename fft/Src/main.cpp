@@ -38,18 +38,12 @@ int main(int argc, char* args[])
 		quit = true; 
 		});
 
-	events.register_event(Events::EventType::MouseDragging, [&](const pixel_2d_coord* coord) {
-		if (nullptr != coord)
-		{
-			DebugLog::instance()->print("mouse dragged..." + std::to_string(coord->hor) + " " + std::to_string(coord->ver));
-		}
+	events.register_event(Events::EventType::MouseDragging, [&](const pixel_2d_coord& coord) {
+		DebugLog::instance()->print("mouse dragged..." + std::to_string(coord.hor) + " " + std::to_string(coord.ver));
 		});
 
-	events.register_event(Events::EventType::LeftMouseDown, [&](const pixel_2d_coord* coord) {
-		if (nullptr != coord)
-		{
-			DebugLog::instance()->print("mouse clicked..." + std::to_string(coord->hor) + " " + std::to_string(coord->ver));
-		}
+	events.register_event(Events::EventType::LeftMouseDown, [&](const pixel_2d_coord& coord) {
+		DebugLog::instance()->print("mouse clicked..." + std::to_string(coord.hor) + " " + std::to_string(coord.ver));
 		});
 
 
