@@ -26,7 +26,7 @@ namespace BASIC_SHAPES_2D
 		rgb_color_normalized m_colour;
 
 	public:
-		Axis() = delete;
+		Axis() {};
 		Axis(Type type,
 			rgb_color_normalized&& colour)
 			: m_type(type)
@@ -35,6 +35,43 @@ namespace BASIC_SHAPES_2D
 			, m_gap(0.1f)
 			, m_colour(colour)
 		{}
+
+		Axis(Axis&& other)
+		{
+			m_type = std::move(other.m_type);
+			m_low_limit = std::move(other.m_low_limit);
+			m_hgh_limit = std::move(other.m_hgh_limit);
+			m_gap = std::move(other.m_gap);
+			m_colour = std::move(other.m_colour);
+		}
+
+		Axis(const Axis& other)
+			: m_type(other.m_type)
+			, m_low_limit(other.m_low_limit)
+			, m_hgh_limit(other.m_hgh_limit)
+			, m_gap(other.m_gap)
+			, m_colour(other.m_colour)
+		{}
+
+		Axis& operator=(const Axis& other)
+		{
+			m_type = other.m_type;
+			m_low_limit = other.m_low_limit;
+			m_hgh_limit = other.m_hgh_limit;
+			m_gap = other.m_gap;
+			m_colour = other.m_colour;
+			return *this;
+		}
+
+		Axis& operator=(Axis&& other)
+		{
+			m_type = std::move(other.m_type);
+			m_low_limit = std::move(other.m_low_limit);
+			m_hgh_limit = std::move(other.m_hgh_limit);
+			m_gap = std::move(other.m_gap);
+			m_colour = std::move(other.m_colour);
+			return *this;
+		}
 
 		template <typename W>
 		ErrorCode draw(screen_ptr screen,

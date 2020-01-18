@@ -16,6 +16,7 @@ namespace BASIC_SHAPES_2D
 		float spacing_len_norm_;
 
 	public:
+		Line() {}
 		Line(
 			pixel_2d_coord_normal start_coord, pixel_2d_coord_normal end_coord,
 			rgb_color_normalized colour,
@@ -34,6 +35,26 @@ namespace BASIC_SHAPES_2D
 			, dash_len_norm_(other.dash_len_norm_)
 			, spacing_len_norm_(other.spacing_len_norm_)
 		{}
+
+		Line(Line&& other)
+		{
+			start_coord_ = std::move(other.start_coord_);
+			end_coord_ = std::move(other.end_coord_);
+			colour_ = std::move(other.colour_);
+			dash_len_norm_ = std::move(other.dash_len_norm_);
+			spacing_len_norm_ = std::move(other.spacing_len_norm_);
+		}
+
+		Line& operator=(const Line& other) = delete;
+		Line& operator=(Line&& other)
+		{
+			start_coord_ = std::move(other.start_coord_);
+			end_coord_ = std::move(other.end_coord_);
+			colour_ = std::move(other.colour_);
+			dash_len_norm_ = std::move(other.dash_len_norm_);
+			spacing_len_norm_ = std::move(other.spacing_len_norm_);
+			return* this;
+		}
 
 	public:
 		ErrorCode draw(screen_ptr screen, Screen::ScreenWindow&& window, pixel_vec_2d& pixel2d_buf)

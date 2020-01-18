@@ -36,6 +36,20 @@ namespace BASIC_SHAPES_2D
 			g = std::move(colour.g);
 			b = std::move(colour.b);
 		}
+		rgb_color_normalized& operator=(const rgb_color_normalized& other)
+		{
+			r = other.r;
+			g = other.g;
+			b = other.b;
+			return *this;
+		}
+		rgb_color_normalized& operator=(rgb_color_normalized&& other)
+		{
+			r = std::move(other.r);
+			g = std::move(other.g);
+			b = std::move(other.b);
+			return *this;
+		}
 
 		rgb_color_normalized(float r, float g, float b) :r(r), g(g), b(b)
 		{
@@ -222,19 +236,64 @@ namespace BASIC_SHAPES_2D
 		size_t n;
 
 		std::unique_ptr<Uint32[]>ptr;
-		size_t size_in_bytes;
+		inline size_t size_in_bytes()const 
+		{
+			return (m * n * sizeof(Uint32));
+		}
 
 	public:
+		pixel_vec_2d()
+			:m(0), n(0)
+		{}
+		pixel_vec_2d(pixel_vec_2d& other) = delete;
+		pixel_vec_2d& operator=(pixel_vec_2d& other) = delete;
+
+		pixel_vec_2d& operator=(pixel_vec_2d&& other)
+		{
+			m = std::move(other.m);
+			n = std::move(other.n);
+			ptr = std::move(other.ptr);
+			other.ptr = nullptr;
+			return *this;
+		}
+
+		pixel_vec_2d(pixel_vec_2d&& other)
+			: m(std::move(other.m))
+			, n(std::move(other.n))
+			, ptr(std::move(other.ptr))
+		{
+			other.ptr = nullptr;
+		}
+
 		pixel_vec_2d(size_t m, size_t n)
 			: m(m), n(n) {
 			ptr = std::make_unique<Uint32[]>(m*n);
-			size_in_bytes = m * n * sizeof(Uint32);
 		}
 
 		pixel_vec_2d(int m, int n)
 			: m(m), n(n) {
 			ptr = std::make_unique<Uint32[]>(m * n);
-			size_in_bytes = m * n * sizeof(Uint32);
+		}
+
+		void init(int in_m, int in_n)
+		{
+			m = in_m;
+			n = in_n;
+
+			ptr = std::make_unique<Uint32[]>(m * n);
+		}
+
+		void set_fill(uint8_t val) // for debug purposes
+		{
+			auto ptr = this->ptr.get();
+
+			for (auto x = 0; x < m; x++)
+			{
+				for (auto y = 0; y < n; y++)
+				{
+					ptr[x * 4 + y] = val;
+				}
+			}
 		}
 
 		inline size_t GET_WIDTH() const{
@@ -269,15 +328,16 @@ namespace BASIC_SHAPES_2D
 		{
 			if (nullptr == ptr)return false;
 			
-			auto copy_size = std::min(buffer_size_bytes, size_in_bytes);
-			SDL_memcpy(ptr, this->ptr.get(), copy_size);
+			auto copy_size = std::min(buffer_size_bytes, size_in_bytes());
+			auto src_ptr = this->ptr.get();
+			SDL_memcpy(ptr, src_ptr, copy_size);
 
 			return true;
 		}
 
 		void clear()
 		{
-			SDL_memset(ptr.get(), 0, size_in_bytes);
+			SDL_memset(ptr.get(), 0, size_in_bytes());
 		}
 	};
 

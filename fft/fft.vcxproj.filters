@@ -49,6 +49,9 @@
     <Filter Include="Source Files\app_state">
       <UniqueIdentifier>{a6ec277b-76fa-472c-8d85-ff249916a33b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\thread">
+      <UniqueIdentifier>{43015cd1-2e9d-49b3-b9c5-19ce630305e3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\main.cpp">
@@ -112,6 +115,9 @@
     </ClInclude>
     <ClInclude Include="Src\app_state\AppState.h">
       <Filter>Source Files\app_state</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\thread\Thread.h">
+      <Filter>Source Files\thread</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

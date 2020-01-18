@@ -19,6 +19,8 @@ namespace BASIC_SHAPES_2D
 		std::vector<SHAPES_2D::BaseShape> shapes_vec_;
 
 	public:
+		Widget() {}
+
 		Widget(const Screen::ScreenWindow& window, screen_ptr screen)
 			:screen_(screen)
 			, window_(window)
@@ -54,8 +56,21 @@ namespace BASIC_SHAPES_2D
 			shapes_vec_ = std::move(other.shapes_vec_);
 		}
 
-		Widget& operator=(const Widget& other) = delete;
-		Widget& operator=(Widget&& other) = delete;
+		Widget& operator=(const Widget& other)
+		{
+			screen_ = other.screen_;
+			window_ = other.window_;
+			shapes_vec_ = other.shapes_vec_;
+			return *this;
+		}
+
+		Widget& operator=(Widget&& other)
+		{
+			screen_ = std::move(other.screen_);
+			window_ = std::move(other.window_);
+			shapes_vec_ = std::move(other.shapes_vec_);
+			return *this;
+		}
 
 		template<typename T>
 		size_t add_shape(T&& shape)
