@@ -75,7 +75,7 @@ namespace TEST_SCREEN
 				return *this;
 			}
 
-			inline pixel_2d_coord get_vertex_coord(Vertex vertex)
+			inline pixel_2d_coord get_vertex_coord(Vertex vertex)const 
 			{
 				/*
 				D**C
@@ -98,6 +98,21 @@ namespace TEST_SCREEN
 				case Vertex::D:
 					return { corner_coord.hor , corner_coord.ver - h};
 				}
+			}
+
+			bool inside(const pixel_2d_coord& coord)const
+			{
+				if (coord.hor >= get_vertex_coord(Screen::ScreenWindow::Vertex::A).hor
+					&& coord.hor <= get_vertex_coord(Screen::ScreenWindow::Vertex::B).hor)
+				{
+					if (coord.ver >= get_vertex_coord(Screen::ScreenWindow::Vertex::C).ver
+						&& coord.ver <= get_vertex_coord(Screen::ScreenWindow::Vertex::A).ver)
+					{
+						return true;
+					}
+				}
+
+				return false;
 			}
 		};
 

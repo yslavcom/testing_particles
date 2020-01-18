@@ -160,40 +160,6 @@ public:
 					}
 				}
 			}
-
-#if 0
-			// -- detect click inside a window
-			switch (is_event.first)
-			{
-			case EventType::Quit:
-				break;
-
-			case EventType::LeftMouseDown:
-			{
-				auto click_coord = std::get_if<pixel_2d_coord>(&is_event.second);
-				if (nullptr != click_coord)
-				{
-					std::accumulate(vector_of_scaling_windows.begin()
-						, vector_of_scaling_windows.end()
-						, 0
-						, [=](int index, auto& w)->int
-						{
-							if (click_coord->hor >= w.get_vertex_coord(Screen::ScreenWindow::Vertex::A).hor
-								&& click_coord->hor <= w.get_vertex_coord(Screen::ScreenWindow::Vertex::B).hor)
-							{
-								if (click_coord->ver >= w.get_vertex_coord(Screen::ScreenWindow::Vertex::C).ver
-									&& click_coord->ver <= w.get_vertex_coord(Screen::ScreenWindow::Vertex::A).ver)
-								{
-									DebugLog::instance()->print("window # " + std::to_string(index) + " clicked");
-								}
-							}
-							return index + 1;
-						});
-				}
-			}
-			break;
-			}
-#endif
 		}
 	}
 

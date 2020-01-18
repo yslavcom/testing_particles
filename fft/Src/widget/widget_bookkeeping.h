@@ -1,8 +1,11 @@
 #pragma once
 
 #include <set>
+#include <vector>
 #include <shared_mutex>
 #include <optional>
+
+#include "BasicStructs.h"
 
 namespace BASIC_SHAPES_2D
 {
@@ -12,7 +15,7 @@ namespace BASIC_SHAPES_2D
 		using object = T*;
 
 	private:
-		std::shared_mutex mut;
+		mutable std::shared_mutex mut;
 		std::set<object>collection;
 		size_t count;
 
@@ -29,6 +32,32 @@ namespace BASIC_SHAPES_2D
 		WidgetBookeeping(WidgetBookeeping&&) = delete;
 		WidgetBookeeping& operator=(const WidgetBookeeping&) = delete;
 		WidgetBookeeping& operator = (WidgetBookeeping&&) = delete;
+
+	private:
+		template<typename COORD>
+		std::optional<std::vector<object>> do_find_windows(COORD&& coord) const
+		{
+			std::vector<object> result;
+
+			std::shared_lock lk(mut);
+
+			auto count = std::accumulate(collection.begin()
+				, collection.end()
+				, 0
+				, [&](auto& count, auto& w)->int
+				{
+					auto window = w->get_window();
+					if (window.inside(coord))
+					{
+						result.push_back(w);
+						count++;
+					}
+					return count;
+				});
+
+			if (count)return result;
+			else return {};
+		}
 
 	public:
 		static std::shared_ptr<WidgetBookeeping> instance()
@@ -62,19 +91,14 @@ namespace BASIC_SHAPES_2D
 			return true;
 		}
 
-		std::optional<object> find(const object w)
+		std::optional<std::vector<object>> find_windows(pixel_2d_coord&& coord) const
 		{
-			std::shared_lock lk(mut);
+			return do_find_windows(coord);
+		}
 
-			auto found = collection.find(w);
-			if (found != collection.end())
-			{
-				return *found;
-			}
-			else
-			{
-				return {};
-			}
+		std::optional<std::vector<object>> find_windows(const pixel_2d_coord& coord)const
+		{
+			return do_find_windows(coord);
 		}
 	};
 

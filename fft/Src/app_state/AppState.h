@@ -179,6 +179,11 @@ namespace APP_STATE
 
 			events.register_event(Events::EventType::LeftMouseDown, [&](const pixel_2d_coord& coord) {
 				DebugLog::instance()->print("mouse clicked..." + std::to_string(coord.hor) + " " + std::to_string(coord.ver));
+				auto result = WidgetBookeeping<Widget>::instance()->find_windows(coord);
+				if (result.has_value())
+				{
+					DebugLog::instance()->print("widget(s) clicked...");
+				}
 				});
 
 

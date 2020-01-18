@@ -122,6 +122,11 @@ namespace BASIC_SHAPES_2D
 			return ErrorCode::OK;
 		}
 
+		const Screen::ScreenWindow& get_window()const
+		{
+			return window_;
+		}
+
 		ErrorCode draw(pixel_vec_2d& pixel2d_buf)
 		{
 			for (auto v : shapes_vec_)
