@@ -128,7 +128,6 @@ namespace APP_STATE
 	public:
 		static std::shared_ptr<AppState> instance()
 		{
-			//static std::shared_ptr<AppState> inst{ new AppState };
 			static std::shared_ptr<AppState> inst{ new AppState };
 			return inst;
 		}
@@ -206,7 +205,7 @@ namespace APP_STATE
 			auto window_3 = Screen::ScreenWindow{ {100, 200}, 300, 50 };
 
 			//test widget
-			widget = std::move(Widget(ScalingWindow{}, screen));
+			widget = Widget(ScalingWindow{}, screen);
 			widget.add_shape(line);
 			widget.add_shape(grid);
 			widget.add_shape(axis_x);
@@ -214,12 +213,9 @@ namespace APP_STATE
 			widget.update_window(ScalingWindow{ {0.1, 0.1 }, 0.3, 0.4 });
 			widget.draw(pixel2d_buf);
 
-			//pixel2d_buf.clear();
-
 			widget2 = widget;
 			widget2.delete_shape_by_index(1);
 			pixel_2d_coord new_coord{ 500, 500 };
-			//widget2.move_window(new_coord);
 			move_widget(widget2, pixel_2d_coord{ 500, 500 });
 			widget2.draw(pixel2d_buf);
 

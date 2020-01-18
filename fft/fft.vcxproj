@@ -161,6 +161,7 @@
     <ClInclude Include="Src\screen\Screen.h" />
     <ClInclude Include="Src\thread\Thread.h" />
     <ClInclude Include="Src\widget\Widget.h" />
+    <ClInclude Include="Src\widget\widget_bookkeeping.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

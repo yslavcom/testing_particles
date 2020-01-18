@@ -5,6 +5,7 @@
 #include "Screen.h"
 #include "ErrorCode.h"
 #include "BasicShapes.h"
+#include "widget_bookkeeping.h"
 
 namespace BASIC_SHAPES_2D
 {
@@ -19,37 +20,54 @@ namespace BASIC_SHAPES_2D
 		std::vector<SHAPES_2D::BaseShape> shapes_vec_;
 
 	public:
-		Widget() {}
+		Widget() 
+		{
+			WidgetBookeeping<Widget>::instance()->add(this);
+		}
+
+		virtual ~Widget()
+		{
+			WidgetBookeeping<Widget>::instance()->remove(this);
+		}
 
 		Widget(const Screen::ScreenWindow& window, screen_ptr screen)
-			:screen_(screen)
-			, window_(window)
-		{}
+			: Widget()
+		{
+			screen_ = screen;
+			window_ = window;
+		}
 
 		Widget(const ScalingWindow& window, screen_ptr screen)
-			:screen_(screen)
-			, window_(window)
-		{}
+			: Widget()
+		{
+			screen_ = screen;
+			window_ = window;
+		}
 
 		Widget(Screen::ScreenWindow&& window, screen_ptr screen)
-			:screen_(screen)
-			, window_(window)
-		{}
+			: Widget()
+		{
+			screen_ = screen;
+			window_ = window;
+		}
 
 		Widget(ScalingWindow&& window, screen_ptr screen)
-			:screen_(screen)
-			, window_(window)
-		{}
-
-		virtual ~Widget() {}
+			: Widget()
+		{
+			screen_ = screen;
+			window_ = window;
+		}
 
 		Widget(const Widget& other)
-			:screen_(other.screen_)
-			, window_(other.window_)
-			, shapes_vec_(other.shapes_vec_)
-		{}
+			: Widget()
+		{
+			screen_ = other.screen_;
+			window_ = other.window_;
+			shapes_vec_ = other.shapes_vec_;
+		}
 
 		Widget(Widget&& other)
+			: Widget()
 		{
 			screen_ = std::move(other.screen_);
 			window_ = std::move(other.window_);
@@ -148,4 +166,5 @@ namespace BASIC_SHAPES_2D
 	{
 		return obj.move_window(coord);
 	}
+
 }

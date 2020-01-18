@@ -12,8 +12,11 @@ public:
 		: t_(std::move(t))
 	{}
 
-	~Thread()
+	virtual ~Thread()
 	{
-		t_.join();
+		if (t_.joinable())
+		{
+			t_.join();
+		}
 	}
 };
