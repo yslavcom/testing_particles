@@ -69,6 +69,9 @@
     <ClCompile Include="Src\screen\Screen.cpp">
       <Filter>Source Files\screen</Filter>
     </ClCompile>
+    <ClCompile Include="Src\app_state\AppState.cpp">
+      <Filter>Source Files\app_state</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\fft.h">

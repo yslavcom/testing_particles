@@ -287,9 +287,9 @@ namespace BASIC_SHAPES_2D
 		{
 			auto ptr = this->ptr.get();
 
-			for (auto x = 0; x < m; x++)
+			for (size_t x = 0; x < m; x++)
 			{
-				for (auto y = 0; y < n; y++)
+				for (size_t y = 0; y < n; y++)
 				{
 					ptr[x * 4 + y] = val;
 				}

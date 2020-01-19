@@ -4,8 +4,6 @@
 #include <shared_mutex>
 #include <memory>
 
-#include "fft.h"
-#include "audio.h"
 #include "screen.h"
 #include "BasicShapesDraw.h"
 #include "BasicShapes.h"
@@ -150,7 +148,10 @@ namespace APP_STATE
 			init_resources();
 		}
 
+		void register_events();
+
 	public:
+
 		void init(size_t width, size_t height)
 		{
 			WIDTH = width;
@@ -161,33 +162,7 @@ namespace APP_STATE
 			screen->clear();
 
 			//create events
-			events.register_event(Events::EventType::Quit, [&]() {
-				DebugLog::instance()->print("quitting...");
-				shutting_down();
-				});
-
-			events.register_event(Events::EventType::MouseDragging, [&](const pixel_2d_coord& coord) {
-				DebugLog::instance()->print("mouse dragged..." + std::to_string(coord.hor) + " " + std::to_string(coord.ver));
-				});
-
-			events.register_event(Events::EventType::LeftMouseDown, [&](const pixel_2d_coord& coord) {
-				DebugLog::instance()->print("mouse clicked..." + std::to_string(coord.hor) + " " + std::to_string(coord.ver));
-				auto result = WidgetBookeeping::instance()->find_windows(coord);
-				if (result.has_value())
-				{
-					DebugLog::instance()->print("widget(s) clicked...");
-				}
-				});
-
-
-			thread__process_event = std::make_unique<Thread>(std::thread([&] {
-				while (is_processing())
-				{
-					events.process_events();
-				}
-				}
-			)
-			);
+			register_events();
 
 			//create graphics
 			pixel2d_buf = std::move(pixel_vec_2d{ screen->SCREEN_WIDTH, screen->SCREEN_HEIGHT });
@@ -214,7 +189,7 @@ namespace APP_STATE
 				widget->add_shape(grid);
 				widget->add_shape(axis_x);
 				widget->add_shape(axis_y);
-				widget->update_window(ScalingWindow{ {0.1, 0.1 }, 0.3, 0.4 });
+				widget->update_window(ScalingWindow{ {0.1f, 0.1f }, 0.3f, 0.4f });
 				widget->draw(pixel2d_buf);
 			}
 			catch (const std::exception & exc)
@@ -234,9 +209,11 @@ namespace APP_STATE
 
 			//debug, test pointer
 			auto ptr_widget = WidgetBookeeping::instance()->make_widget(Widget(ScalingWindow{}, screen));
-			ptr_widget->update_window(ScalingWindow{ {0.2, 0.5 }, 0.7, 0.3 });
+			ptr_widget->update_window(ScalingWindow{ {0.2f, 0.5f }, 0.7f, 0.3f });
 			ptr_widget->add_shape(grid);
 			ptr_widget->draw(pixel2d_buf);
+
+			//WidgetBookeeping::instance()->delete_widget(ptr_widget);
 
 			screen->copy_to_screen_buf(pixel2d_buf);
 			std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();

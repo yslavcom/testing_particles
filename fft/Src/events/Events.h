@@ -30,6 +30,7 @@ public:
 	enum  class EventType
 	{
 		LeftMouseDown, // left mouse button pressed
+		LeftMouseUp, // left mouse button released
 		MouseDragging, // left mouse button down & mouse is moving
 		Quit, // quit app event
 	};
@@ -109,6 +110,17 @@ public:
 					coord.hor = event.button.x;
 					coord.ver = event.button.y;
 					pipe->push(std::make_pair<EventType, EventContainer>(EventType::LeftMouseDown, coord));
+				}
+			}break;
+
+			case SDL_MOUSEBUTTONUP:
+			{
+				if (SDL_BUTTON(SDL_BUTTON_LEFT) == event.button.button)
+				{
+					pixel_2d_coord coord;
+					coord.hor = event.button.x;
+					coord.ver = event.button.y;
+					pipe->push(std::make_pair<EventType, EventContainer>(EventType::LeftMouseUp, coord));
 				}
 			}break;
 

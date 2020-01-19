@@ -5,13 +5,12 @@
 template <typename T>
 class Collection
 {
+
 private:
-	std::set<T>collection;
-	size_t count;
+	std::set<T> collection;
 
 public:
 	Collection()
-		: count(0)
 	{
 		collection.clear();
 	}
@@ -19,19 +18,17 @@ public:
 	Collection(const Collection& other)
 	{
 		collection = other.collection;
-		count = other.count;
 	}
 
 	Collection(Collection&& other)
+		: collection(std::move(other.collection))
 	{
-		collection(std::move(other.collection));
-		count(std::move(other.count));
+		
 	}
 
 	Collection& operator=(const Collection& other)
 	{
 		collection = other.collection;
-		count = other.count;
 
 		return *this;
 	}
@@ -39,7 +36,6 @@ public:
 	Collection& operator = (Collection&& other)
 	{
 		collection(std::move(other.collection));
-		count(std::move(other.count));
 
 		return *this;
 	}
@@ -60,13 +56,25 @@ public:
 		return true;
 	}
 
-	auto iterator_begin()
+	bool clear_all()
+	{
+		collection.clear();
+
+		return true;
+	}
+
+	auto iterator_begin()const
 	{
 		return collection.begin();
 	}
 
-	auto iterator_end()
+	auto iterator_end()const
 	{
 		return collection.end();
+	}
+
+	size_t get_count()const
+	{
+		return collection.size();
 	}
 };

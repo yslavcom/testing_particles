@@ -21,48 +21,37 @@ namespace BASIC_SHAPES_2D
 	public:
 		Widget() 
 		{
-#if 0
-			WidgetBookeeping<Widget>::instance()->add(std::shared_ptr<Widget>(this));
-#endif
 		}
 
 		virtual ~Widget()
 		{
-#if 0
-			WidgetBookeeping<Widget>::instance()->remove(this);
-#endif
 		}
 
 		Widget(const Screen::ScreenWindow& window, screen_ptr screen)
-			: Widget()
 		{
 			screen_ = screen;
 			window_ = window;
 		}
 
 		Widget(const ScalingWindow& window, screen_ptr screen)
-			: Widget()
 		{
 			screen_ = screen;
 			window_ = window;
 		}
 
 		Widget(Screen::ScreenWindow&& window, screen_ptr screen)
-			: Widget()
 		{
 			screen_ = screen;
 			window_ = window;
 		}
 
 		Widget(ScalingWindow&& window, screen_ptr screen)
-			: Widget()
 		{
 			screen_ = screen;
 			window_ = window;
 		}
 
 		Widget(const Widget& other)
-			: Widget()
 		{
 			screen_ = other.screen_;
 			window_ = other.window_;
@@ -70,7 +59,6 @@ namespace BASIC_SHAPES_2D
 		}
 
 		Widget(Widget&& other)
-			: Widget()
 		{
 			screen_ = std::move(other.screen_);
 			window_ = std::move(other.window_);
