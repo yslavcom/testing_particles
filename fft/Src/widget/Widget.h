@@ -5,7 +5,6 @@
 #include "Screen.h"
 #include "ErrorCode.h"
 #include "BasicShapes.h"
-#include "widget_bookkeeping.h"
 
 namespace BASIC_SHAPES_2D
 {
@@ -22,12 +21,16 @@ namespace BASIC_SHAPES_2D
 	public:
 		Widget() 
 		{
-			WidgetBookeeping<Widget>::instance()->add(this);
+#if 0
+			WidgetBookeeping<Widget>::instance()->add(std::shared_ptr<Widget>(this));
+#endif
 		}
 
 		virtual ~Widget()
 		{
+#if 0
 			WidgetBookeeping<Widget>::instance()->remove(this);
+#endif
 		}
 
 		Widget(const Screen::ScreenWindow& window, screen_ptr screen)
@@ -100,7 +103,10 @@ namespace BASIC_SHAPES_2D
 
 		void delete_shape_by_index(size_t index)
 		{
-			shapes_vec_.erase(shapes_vec_.begin() + index);
+			if (index < shapes_vec_.size())
+			{
+				shapes_vec_.erase(shapes_vec_.begin() + index);
+			}
 		}
 
 		template<typename W>
@@ -171,5 +177,12 @@ namespace BASIC_SHAPES_2D
 	{
 		return obj.move_window(coord);
 	}
+#if 0
+	template <typename COORD>
+	auto move_widget(std::shared_ptr<Widget>* obj, COORD&& coord)
+	{
+		return obj->move_window(coord);
+	}
+#endif
 
 }

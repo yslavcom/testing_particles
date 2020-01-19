@@ -52,6 +52,9 @@
     <Filter Include="Source Files\thread">
       <UniqueIdentifier>{43015cd1-2e9d-49b3-b9c5-19ce630305e3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\collection">
+      <UniqueIdentifier>{275083e5-8ec9-4e4a-ae7a-9e3ca1f5bfa5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\main.cpp">
@@ -121,6 +124,9 @@
     </ClInclude>
     <ClInclude Include="Src\widget\widget_bookkeeping.h">
       <Filter>Source Files\widget</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\collection\collection.h">
+      <Filter>Source Files\collection</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

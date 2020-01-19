@@ -9,7 +9,7 @@
 #include "screen.h"
 #include "BasicShapesDraw.h"
 #include "BasicShapes.h"
-#include "Widget.h"
+#include "widget_bookkeeping.h"
 #include "DebugLog.h"
 #include "Effect.h"
 #include "Grid.h"
@@ -120,11 +120,6 @@ namespace APP_STATE
 
 	class AppState : public State
 	{
-	private:
-		AppState() {
-			init_resources();
-		}
-
 	public:
 		static std::shared_ptr<AppState> instance()
 		{
@@ -145,17 +140,15 @@ namespace APP_STATE
 		screen_ptr screen;
 		BASIC_EFFECTS::Effect effect;
 		pixel_vec_2d pixel2d_buf;
-		Grid grid;
-		Axis axis_x;
-		Axis axis_y;
-		Line line;
-
-		Widget widget;
-		Widget widget2;
+		
 		Events events;
 
 		std::unique_ptr<Thread> thread__process_event;
-	
+
+	private:
+		AppState(){
+			init_resources();
+		}
 
 	public:
 		void init(size_t width, size_t height)
@@ -179,7 +172,7 @@ namespace APP_STATE
 
 			events.register_event(Events::EventType::LeftMouseDown, [&](const pixel_2d_coord& coord) {
 				DebugLog::instance()->print("mouse clicked..." + std::to_string(coord.hor) + " " + std::to_string(coord.ver));
-				auto result = WidgetBookeeping<Widget>::instance()->find_windows(coord);
+				auto result = WidgetBookeeping::instance()->find_windows(coord);
 				if (result.has_value())
 				{
 					DebugLog::instance()->print("widget(s) clicked...");
@@ -201,28 +194,49 @@ namespace APP_STATE
 
 			std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
-			axis_x = std::move(Axis(Axis::Type::X, { colour_name::RED }));
-			axis_y = std::move(Axis(Axis::Type::Y, { colour_name::RED }));
-			line = std::move(Line(pixel_2d_coord_normal{ 0.49, 0.07 }, pixel_2d_coord_normal{ 0.51, 0.91 },
+			Axis axis_x(Axis::Type::X, { colour_name::RED });
+			Axis axis_y(Axis::Type::Y, { colour_name::RED });
+			Line line (pixel_2d_coord_normal{ 0.49, 0.07 }, pixel_2d_coord_normal{ 0.51, 0.91 },
 				rgb_color_normalized{ 1.f, 1.f, 0.f },
-				0.1f, 0.01f));
+				0.1f, 0.01f);
 
 			auto window_3 = Screen::ScreenWindow{ {100, 200}, 300, 50 };
 
-			//test widget
-			widget = Widget(ScalingWindow{}, screen);
-			widget.add_shape(line);
-			widget.add_shape(grid);
-			widget.add_shape(axis_x);
-			widget.add_shape(axis_y);
-			widget.update_window(ScalingWindow{ {0.1, 0.1 }, 0.3, 0.4 });
-			widget.draw(pixel2d_buf);
+			Grid grid;
 
-			widget2 = widget;
-			widget2.delete_shape_by_index(1);
+			//test widget
+			std::shared_ptr<Widget> widget;
+			try
+			{
+				widget = WidgetBookeeping::instance()->make_widget(ScalingWindow{}, screen);
+
+				widget->add_shape(line);
+				widget->add_shape(grid);
+				widget->add_shape(axis_x);
+				widget->add_shape(axis_y);
+				widget->update_window(ScalingWindow{ {0.1, 0.1 }, 0.3, 0.4 });
+				widget->draw(pixel2d_buf);
+			}
+			catch (const std::exception & exc)
+			{
+				std::cerr << exc.what();
+			}
+			catch (...)
+			{
+				std::cerr << "unknown exception";
+			}
+
+			auto widget2 = WidgetBookeeping::instance()->make_widget(*(widget.get())); // dereference, because 'widget' is a pointer
+			widget2->delete_shape_by_index(1);
 			pixel_2d_coord new_coord{ 500, 500 };
-			move_widget(widget2, pixel_2d_coord{ 500, 500 });
-			widget2.draw(pixel2d_buf);
+			widget2->move_window(pixel_2d_coord{ 500, 500 });
+			widget2->draw(pixel2d_buf);
+
+			//debug, test pointer
+			auto ptr_widget = WidgetBookeeping::instance()->make_widget(Widget(ScalingWindow{}, screen));
+			ptr_widget->update_window(ScalingWindow{ {0.2, 0.5 }, 0.7, 0.3 });
+			ptr_widget->add_shape(grid);
+			ptr_widget->draw(pixel2d_buf);
 
 			screen->copy_to_screen_buf(pixel2d_buf);
 			std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
