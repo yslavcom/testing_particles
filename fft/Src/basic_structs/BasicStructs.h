@@ -176,6 +176,17 @@ namespace BASIC_SHAPES_2D
 		size_t hor;
 		size_t ver;
 
+		struct delta
+		{
+			int32_t hor;
+			int32_t ver;
+
+			friend inline bool operator< (const delta& lhs, const delta& rhs)
+			{
+				return std::tie(lhs.hor, lhs.ver) < std::tie(rhs.hor, rhs.ver);
+			}
+		};
+
 		pixel_2d_coord() 
 			:hor(0), ver(0)
 		{}
@@ -229,6 +240,33 @@ namespace BASIC_SHAPES_2D
 		friend inline bool operator< (const pixel_2d_coord& lhs, const pixel_2d_coord& rhs) 
 		{
 			return std::tie(lhs.hor, lhs.ver) < std::tie(rhs.hor, rhs.ver);
+		}
+
+		delta get_delta(const pixel_2d_coord& coord)const
+		{
+			delta d;
+
+			auto lambda = [](size_t a, size_t b)->int32_t {
+				return a - b;
+			};
+
+			d.hor = lambda(coord.hor, this->hor);
+			d.ver = lambda(coord.ver, this->ver);
+			return d;
+		}
+
+		void apply_delta(const delta& d)
+		{
+			delta result;
+
+			auto lambda = [](int32_t a, int32_t b)->size_t {
+				int32_t temp = a + b;
+				if (temp < 0)temp = 0;
+				return temp;
+			};
+
+			this->hor = lambda(this->hor, d.hor);
+			this->ver = lambda(this->ver, d.ver);
 		}
 	};
 

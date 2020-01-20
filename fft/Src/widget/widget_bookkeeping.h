@@ -14,18 +14,19 @@ namespace BASIC_SHAPES_2D
 {
 	class WidgetBookeeping
 	{
-		using object = std::shared_ptr<Widget>;
-		using object_and_coord_pair = std::pair<object, pixel_2d_coord>;
+		using Object = std::shared_ptr<Widget>;
+		using Coord = pixel_2d_coord::delta;
+		using Object_and_coord_pair = std::pair<Object, Coord>;
 
 	private:
 		mutable std::shared_mutex mut;
-		std::unique_ptr<Collection<object>>widgets_col;
-		std::unique_ptr<Collection<object_and_coord_pair>>widgets_selected;
+		std::unique_ptr<Collection<Object>>widgets_col;
+		std::unique_ptr<Collection<Object_and_coord_pair>>widgets_selected;
 
 		WidgetBookeeping()
 		{
-			widgets_col = std::make_unique<Collection<object>>();
-			widgets_selected = std::make_unique<Collection<object_and_coord_pair>>();
+			widgets_col = std::make_unique<Collection<Object>>();
+			widgets_selected = std::make_unique<Collection<Object_and_coord_pair>>();
 		}
 
 		WidgetBookeeping(const WidgetBookeeping&) = delete;
@@ -44,9 +45,9 @@ namespace BASIC_SHAPES_2D
 
 	private:
 		template<typename COORD>
-		std::optional<std::vector<object>> do_find_windows(COORD&& coord) const
+		std::optional<std::vector<Object>> do_find_windows(COORD&& coord) const
 		{
-			std::vector<object> result;
+			std::vector<Object> result;
 
 			std::shared_lock lk(mut);
 
@@ -71,11 +72,11 @@ namespace BASIC_SHAPES_2D
 	public:
 
 		template<typename ... Args>
-		object make_widget(Args...args)
+		Object make_widget(Args...args)
 		{
 			std::unique_lock lk(mut);
 
-			object ptr(new Widget(std::forward<Args>(args)...));
+			Object ptr(new Widget(std::forward<Args>(args)...));
 
 			if (!ptr) { throw std::system_error(errno, std::generic_category()); }
 
@@ -83,25 +84,25 @@ namespace BASIC_SHAPES_2D
 			return ptr;
 		}
 
-		bool delete_widget(object obj)
+		bool delete_widget(Object obj)
 		{
 			std::unique_lock lk(mut);
 
 			return widgets_col->remove(obj);
 		}
 
-		std::optional<std::vector<object>> find_windows(pixel_2d_coord&& coord) const
+		std::optional<std::vector<Object>> find_windows(pixel_2d_coord&& coord) const
 		{
 			return do_find_windows(coord);
 		}
 
-		std::optional<std::vector<object>> find_windows(const pixel_2d_coord& coord)const
+		std::optional<std::vector<Object>> find_windows(const pixel_2d_coord& coord)const
 		{
 			return do_find_windows(coord);
 		}
 
 		template<typename COL>
-		void move_widgets(COL&& col, const pixel_2d_coord& coord)
+		void move_widgets(COL&& col, const Coord& coord)
 		{
 			std::for_each(
 				col.begin(),
@@ -138,7 +139,9 @@ namespace BASIC_SHAPES_2D
 				col.end(),
 				[&](auto widget)
 				{
-					widgets_selected->add(std::make_pair(widget, coord));
+					pixel_2d_coord w_coord = widget->get_window().corner_coord;
+					auto delta_coord = w_coord.get_delta(coord);
+					widgets_selected->add(std::make_pair(widget, delta_coord));
 				}
 			);
 		}
@@ -157,7 +160,7 @@ namespace BASIC_SHAPES_2D
 						widgets_selected->iterator_begin(),
 						widgets_selected->iterator_end(),
 						[](auto& el) {
-							if (std::get<object>(el) == widget)
+							if (std::get<Object>(el) == widget)
 							{
 								widgets_selected->remove(el);
 								return true;
@@ -179,20 +182,20 @@ namespace BASIC_SHAPES_2D
 			widgets_selected->clear_all();
 		}
 
-		std::optional<std::vector<object>> get_selected()const
+		std::optional<std::vector<Object>> get_selected()const
 		{
 			std::shared_lock lk(mut);
 
 			if (0 == widgets_selected->get_count())return {};
 
-			std::vector<object> result;
+			std::vector<Object> result;
 
 			std::for_each(
 				widgets_selected->iterator_begin(),
 				widgets_selected->iterator_end(),
 				[&](auto& el)
 				{
-					result.emplace_back(std::get<object>(el));
+					result.emplace_back(std::get<Object>(el));
 				}
 			);
 
@@ -206,12 +209,13 @@ namespace BASIC_SHAPES_2D
 				widgets_selected->iterator_end(),
 				[&](auto& el)
 				{
-					pixel_2d_coord prev_touch_coord = std::get<pixel_2d_coord>(el);
-					auto widget = std::get<object>(el);
-					
-					pixel_2d_coord coord = widget->get_window().corner_coord;
+					Coord delta = std::get<Coord>(el);
+					auto widget = std::get<Object>(el);
+					auto window = widget->get_window();
+					auto corner_coord = window.corner_coord;
+					corner_coord.apply_delta(delta);
 
-					DebugLog::instance()->print("coord " + std::to_string(coord.hor) + "  " + std::to_string(prev_touch_coord.hor));
+					DebugLog::instance()->print("coord " + std::to_string(coord.hor) + "  " + std::to_string(corner_coord.hor));
 
 					widget->move_window(coord);
 				}
@@ -225,7 +229,7 @@ namespace BASIC_SHAPES_2D
 				widgets_selected->iterator_end(),
 				[&](auto& el)
 				{
-					auto widget = std::get<object>(el);
+					auto widget = std::get<Object>(el);
 					widget->draw(pixel2d_buf);
 				}
 			);

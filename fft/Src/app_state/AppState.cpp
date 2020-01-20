@@ -36,6 +36,7 @@ namespace APP_STATE
 		events.register_event(Events::EventType::LeftMouseUp, [&](const pixel_2d_coord& coord) {
 			DebugLog::instance()->print("left mouse released..." + std::to_string(coord.hor) + " " + std::to_string(coord.ver));
 		
+			screen->copy_to_screen_buf(pixel2d_buf);
 			WidgetBookeeping::instance()->clear_selected_all();
 			});
 
