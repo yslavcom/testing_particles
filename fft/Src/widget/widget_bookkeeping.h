@@ -4,6 +4,7 @@
 #include <optional>
 #include <numeric>
 #include <utility>
+#include <memory>
 
 #include "BasicStructs.h"
 #include "collection.h"
@@ -14,16 +15,17 @@ namespace BASIC_SHAPES_2D
 	class WidgetBookeeping
 	{
 		using object = std::shared_ptr<Widget>;
+		using object_and_coord_pair = std::pair<object, pixel_2d_coord>;
 
 	private:
 		mutable std::shared_mutex mut;
 		std::unique_ptr<Collection<object>>widgets_col;
-		std::unique_ptr<Collection<object>>widgets_selected;
+		std::unique_ptr<Collection<object_and_coord_pair>>widgets_selected;
 
 		WidgetBookeeping()
 		{
 			widgets_col = std::make_unique<Collection<object>>();
-			widgets_selected = std::make_unique<Collection<object>>();
+			widgets_selected = std::make_unique<Collection<object_and_coord_pair>>();
 		}
 
 		WidgetBookeeping(const WidgetBookeeping&) = delete;
@@ -136,7 +138,7 @@ namespace BASIC_SHAPES_2D
 				col.end(),
 				[&](auto widget)
 				{
-					widgets_selected->add(widget);
+					widgets_selected->add(std::make_pair(widget, coord));
 				}
 			);
 		}
@@ -151,8 +153,6 @@ namespace BASIC_SHAPES_2D
 				col.end(),
 				[](auto& widget)
 				{
-#if 1
-#else
 					std::find_if(
 						widgets_selected->iterator_begin(),
 						widgets_selected->iterator_end(),
@@ -168,7 +168,6 @@ namespace BASIC_SHAPES_2D
 							}
 						}
 					);
-#endif
 				}
 			);
 		}
@@ -193,7 +192,7 @@ namespace BASIC_SHAPES_2D
 				widgets_selected->iterator_end(),
 				[&](auto& el)
 				{
-					//result.emplace_back(std::get<object>(el));
+					result.emplace_back(std::get<object>(el));
 				}
 			);
 
@@ -207,8 +206,8 @@ namespace BASIC_SHAPES_2D
 				widgets_selected->iterator_end(),
 				[&](auto& el)
 				{
-					//auto widget = std::get<object>(el);
-					//widget->move_window(coord);
+					auto widget = std::get<object>(el);
+					widget->move_window(coord);
 				}
 			);
 		}
@@ -220,8 +219,8 @@ namespace BASIC_SHAPES_2D
 				widgets_selected->iterator_end(),
 				[&](auto& el)
 				{
-					//auto widget = std::get<object>(el);
-					//widget->draw(pixel2d_buf);
+					auto widget = std::get<object>(el);
+					widget->draw(pixel2d_buf);
 				}
 			);
 		}

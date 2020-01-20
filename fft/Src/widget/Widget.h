@@ -2,6 +2,7 @@
 
 #include<vector>
 #include<map>
+#include<tuple>
 #include "Screen.h"
 #include "ErrorCode.h"
 #include "BasicShapes.h"
@@ -80,6 +81,8 @@ namespace BASIC_SHAPES_2D
 			shapes_vec_ = std::move(other.shapes_vec_);
 			return *this;
 		}
+
+		friend inline bool operator< (const Widget& lhs, const Widget& rhs) { return lhs.shapes_vec_.size()  < rhs.shapes_vec_.size(); }
 
 		template<typename T>
 		size_t add_shape(T&& shape)

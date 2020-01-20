@@ -225,6 +225,11 @@ namespace BASIC_SHAPES_2D
 			ver = std::move(other.ver);
 			return *this;
 		}
+
+		friend inline bool operator< (const pixel_2d_coord& lhs, const pixel_2d_coord& rhs) 
+		{
+			return std::tie(lhs.hor, lhs.ver) < std::tie(rhs.hor, rhs.ver);
+		}
 	};
 
 	//using pixel_vec_2d = std::vector<std::vector<Uint32>>;

@@ -42,7 +42,7 @@ public:
 
 
 public:
-	bool add(const T obj)
+	bool add(const T& obj)
 	{
 		collection.emplace(obj);
 

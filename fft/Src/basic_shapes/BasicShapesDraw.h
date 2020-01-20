@@ -74,7 +74,7 @@ namespace BASIC_SHAPES_2D
 
 				if (r != ErrorCode::OK)
 				{
-					DebugLog::instance()->print("draw_line::plot fail = " + std::to_string(x) + " " + std::to_string(y));
+					//DebugLog::instance()->print("draw_line::plot fail = " + std::to_string(x) + " " + std::to_string(y));
 				}
 			};
 
