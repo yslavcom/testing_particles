@@ -206,7 +206,13 @@ namespace BASIC_SHAPES_2D
 				widgets_selected->iterator_end(),
 				[&](auto& el)
 				{
+					pixel_2d_coord prev_touch_coord = std::get<pixel_2d_coord>(el);
 					auto widget = std::get<object>(el);
+					
+					pixel_2d_coord coord = widget->get_window().corner_coord;
+
+					DebugLog::instance()->print("coord " + std::to_string(coord.hor) + "  " + std::to_string(prev_touch_coord.hor));
+
 					widget->move_window(coord);
 				}
 			);
