@@ -380,7 +380,25 @@ namespace BASIC_SHAPES_2D
 
 		void clear()
 		{
-			SDL_memset(ptr.get(), 0, size_in_bytes());
+			if (ptr == nullptr)
+			{
+				throw std::logic_error("null ptr");
+			}
+			else
+			{
+				try
+				{
+					SDL_memset(ptr.get(), 0, size_in_bytes());
+				}
+				catch (const std::exception ex)
+				{
+					std::cerr << ex.what();
+				}
+				catch (...)
+				{
+					std::cerr << "unknown exception";
+				}
+			}
 		}
 	};
 

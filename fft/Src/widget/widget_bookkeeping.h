@@ -101,8 +101,9 @@ namespace BASIC_SHAPES_2D
 			return do_find_windows(coord);
 		}
 
+#if 0
 		template<typename COL>
-		void move_widgets(COL&& col, const Coord& coord)
+		void move_widgets(COL&& col, const Coord& coord) check the coordinates
 		{
 			std::for_each(
 				col.begin(),
@@ -115,6 +116,7 @@ namespace BASIC_SHAPES_2D
 				}
 			);
 		}
+#endif
 
 		template<typename COL>
 		void draw_widgets(COL&& col, pixel_vec_2d& pixel2d_buf)
@@ -139,9 +141,18 @@ namespace BASIC_SHAPES_2D
 				col.end(),
 				[&](auto widget)
 				{
-					pixel_2d_coord w_coord = widget->get_window().corner_coord;
-					auto delta_coord = w_coord.get_delta(coord);
+					pixel_2d_coord w_corner_coord = widget->get_window().corner_coord;
+					Coord delta_coord = w_corner_coord.get_delta(coord);
 					widgets_selected->add(std::make_pair(widget, delta_coord));
+
+					DebugLog::instance()->print
+					(
+						"Add: C[" + std::to_string(coord.hor) + "; " + std::to_string(coord.ver) + "]/"
+						+ "W[" + std::to_string(w_corner_coord.hor) + "; " + std::to_string(w_corner_coord.ver) + "]/"
+						+ "D[" + std::to_string(delta_coord.hor) + "; " + std::to_string(delta_coord.ver) + "]"
+					);
+
+
 				}
 			);
 		}
@@ -209,15 +220,31 @@ namespace BASIC_SHAPES_2D
 				widgets_selected->iterator_end(),
 				[&](auto& el)
 				{
-					Coord delta = std::get<Coord>(el);
+					Coord delta_at_selection = std::get<Coord>(el); // retrieve delta between the window corner coord and the left mouse click at the widget selection
 					auto widget = std::get<Object>(el);
 					auto window = widget->get_window();
-					auto corner_coord = window.corner_coord;
-					corner_coord.apply_delta(delta);
+					auto corner_coord = window.corner_coord; // get the current window corner coord
 
-					DebugLog::instance()->print("coord " + std::to_string(coord.hor) + "  " + std::to_string(corner_coord.hor));
+					//get the left mouse click coord at the widget selection
+					pixel_2d_coord mouse_coord_at_selection(corner_coord);
+					mouse_coord_at_selection.apply_delta(delta_at_selection);
 
-					widget->move_window(coord);
+					//get the delta between the mouse click coord and the current coord
+					Coord delta_cur_coord = mouse_coord_at_selection.get_delta(coord);
+
+					//apply this delta to the window corner coord
+					corner_coord.apply_delta(delta_cur_coord);
+
+#if 0
+					DebugLog::instance()->print
+					(
+						"C["+ std::to_string(coord.hor) + "; " + std::to_string(coord.ver) + "]/"
+						+ "W[" + std::to_string(window.corner_coord.hor) + "; " + std::to_string(window.corner_coord.ver) + "]/"
+						+ "D[" + std::to_string(delta_at_selection.hor) + "; " + std::to_string(delta_at_selection.ver) + "]/"
+						+ "=> r[" + std::to_string(corner_coord.hor) + "; " + std::to_string(corner_coord.ver) + "]"
+					);
+#endif
+					widget->move_window(corner_coord);
 				}
 			);
 		}
@@ -234,6 +261,17 @@ namespace BASIC_SHAPES_2D
 				}
 			);
 		}
-	};
 
+		void draw_widgets(pixel_vec_2d& pixel2d_buf)
+		{
+			std::for_each(
+				widgets_col->iterator_begin(),
+				widgets_col->iterator_end(),
+				[&](auto& widget)
+				{
+					widget->draw(pixel2d_buf);
+				}
+			);
+		}
+	};
 }
