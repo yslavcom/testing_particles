@@ -96,6 +96,7 @@ namespace TEST_SCREEN
 					return { corner_coord.hor + w, corner_coord.ver - h };
 
 				case Vertex::D:
+				default:
 					return { corner_coord.hor , corner_coord.ver - h};
 				}
 			}

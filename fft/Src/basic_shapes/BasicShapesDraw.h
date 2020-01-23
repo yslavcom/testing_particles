@@ -59,9 +59,9 @@ namespace BASIC_SHAPES_2D
 			int y1 = end.ver;
 
 			auto ipart = [](float x) -> int {return int(std::floor(x)); };
-			auto round = [](float x) -> float {return std::round(x); };
+			auto round = [](auto x)->float{return static_cast<float>(std::round(x)); };
 			auto fpart = [](float x) -> float {return x - std::floor(x); };
-			auto rfpart = [=](float x) -> float {return 1 - fpart(x); };
+			auto rfpart = [=](float x) -> float {return 1.0f - fpart(x); };
 
 			auto plot = [=, &pixel2d_buf, &color](size_t x, size_t y, float brightness) {
 
@@ -88,9 +88,10 @@ namespace BASIC_SHAPES_2D
 				std::swap(y0, y1);
 			}
 
-			const float dx = x1 - x0;
-			const float dy = y1 - y0;
-			const float gradient = (dx == 0) ? 1 : dy / dx;
+			const int dx = x1 - x0;
+			const int dy = y1 - y0;
+			const float gradient = (dx == 0) 
+				? 1.0f : static_cast<float>(dy) / static_cast<float>(dx);
 
 			size_t dash_len = 0;
 			size_t spacing_len = 0;
@@ -106,7 +107,7 @@ namespace BASIC_SHAPES_2D
 			{
 				const float xend = round(x0);
 				const float yend = y0 + gradient * (xend - x0);
-				const float xgap = rfpart(x0 + 0.5);
+				const float xgap = rfpart(x0 + 0.5f);
 				xpx11 = int(xend);
 				const int ypx11 = ipart(yend);
 				if (steep) {
@@ -124,7 +125,7 @@ namespace BASIC_SHAPES_2D
 			{
 				const float xend = round(x1);
 				const float yend = y1 + gradient * (xend - x1);
-				const float xgap = rfpart(x1 + 0.5);
+				const float xgap = rfpart(x1 + 0.5f);
 				xpx12 = int(xend);
 				const int ypx12 = ipart(yend);
 				if (steep) {

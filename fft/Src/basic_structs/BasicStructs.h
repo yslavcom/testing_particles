@@ -268,8 +268,8 @@ namespace BASIC_SHAPES_2D
 	struct pixel_vec_2d
 	{
 	private:
-		size_t m;
-		size_t n;
+		int32_t m;
+		int32_t n;
 
 		std::unique_ptr<Uint32[]>ptr;
 		inline size_t size_in_bytes()const 
@@ -319,9 +319,9 @@ namespace BASIC_SHAPES_2D
 		{
 			auto ptr = this->ptr.get();
 
-			for (size_t x = 0; x < m; x++)
+			for (int32_t x = 0; x < m; x++)
 			{
-				for (size_t y = 0; y < n; y++)
+				for (int32_t y = 0; y < n; y++)
 				{
 					ptr[x * 4 + y] = val;
 				}
@@ -338,7 +338,9 @@ namespace BASIC_SHAPES_2D
 		bool operator()(const pixel_2d_coord&& coord, Uint32 val)
 		{
 			if (coord.hor < m
-				&& coord.ver < n)
+				&& coord.hor >= 0
+				&& coord.ver < n
+				&& coord.ver >= 0)
 			{
 				ptr[m * coord.ver + coord.hor] = val;
 				return true;
