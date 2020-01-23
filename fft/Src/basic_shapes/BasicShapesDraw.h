@@ -43,7 +43,7 @@ namespace BASIC_SHAPES_2D
 			pixel_vec_2d& pixel2d_buf,
 			COORD&& start, COORD&& end,
 			COLOUR&& color,
-			const size_t dash_len_norm, const size_t spacing_len_norm,
+			const float dash_len_norm, const float spacing_len_norm,
 			DashFoo dashFoo, SpacingFoo spacingFoo
 		)
 		{

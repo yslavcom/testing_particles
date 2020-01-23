@@ -253,8 +253,6 @@ namespace BASIC_SHAPES_2D
 
 		void apply_delta(const delta& d)
 		{
-			delta result;
-
 			auto lambda = [](int32_t a, int32_t b)->int32_t {
 				int32_t temp = a + b;
 				return temp;
@@ -303,15 +301,11 @@ namespace BASIC_SHAPES_2D
 			other.ptr = nullptr;
 		}
 
-		pixel_vec_2d(size_t m, size_t n)
+		pixel_vec_2d(int32_t m, int32_t n)
 			: m(m), n(n) {
 			ptr = std::make_unique<Uint32[]>(m*n);
 		}
 
-		pixel_vec_2d(int m, int n)
-			: m(m), n(n) {
-			ptr = std::make_unique<Uint32[]>(m * n);
-		}
 
 		void init(int in_m, int in_n)
 		{
@@ -334,10 +328,10 @@ namespace BASIC_SHAPES_2D
 			}
 		}
 
-		inline size_t GET_WIDTH() const{
+		inline int32_t GET_WIDTH() const{
 			return  m;
 		}
-		inline size_t GET_HEIGHT() const {
+		inline int32_t GET_HEIGHT() const {
 			return n;
 		}
 
@@ -355,7 +349,9 @@ namespace BASIC_SHAPES_2D
 		Uint32 operator()( pixel_2d_coord&& coord)
 		{
 			if (coord.hor < m
-				&& coord.ver < n)
+				&& coord.hor >= 0
+				&& coord.ver < n
+				&& coord.ver >= 0)
 			{
 				return ptr[m * coord.ver + coord.hor];
 			}
