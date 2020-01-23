@@ -173,8 +173,8 @@ namespace BASIC_SHAPES_2D
 	class pixel_2d_coord
 	{
 	public:
-		size_t hor;
-		size_t ver;
+		int32_t hor;
+		int32_t ver;
 
 		struct delta
 		{
@@ -191,24 +191,20 @@ namespace BASIC_SHAPES_2D
 			:hor(0), ver(0)
 		{}
 
+		pixel_2d_coord(int32_t hor, int32_t ver)
+			:hor(hor), ver(ver)
+		{}
+
 		pixel_2d_coord(size_t hor, size_t ver)
 			:hor(hor), ver(ver)
 		{}
 
-		pixel_2d_coord(int hor, int ver)
-			:hor(hor), ver(ver)
+		explicit pixel_2d_coord( pixel_2d_coord_normal && normalized, int32_t width, int32_t height)
+			:hor(static_cast<int32_t>((normalized.hor) * width)), ver(static_cast<int32_t>((1-normalized.ver) * height))
 		{}
 
-		pixel_2d_coord( pixel_2d_coord_normal && normalized, size_t width, size_t height)
-			:hor(static_cast<size_t>((normalized.hor) * width)), ver(static_cast<size_t>((1-normalized.ver) * height))
-		{}
-
-		pixel_2d_coord( pixel_2d_coord_normal&& normalized, int width, int height)
-			:hor(static_cast<size_t>((normalized.hor)* width)), ver(static_cast<size_t>((1-normalized.ver)* height))
-		{}
-
-		pixel_2d_coord(const pixel_2d_coord_normal& normalized, int width, int height)
-			:hor(static_cast<size_t>((normalized.hor)* width)), ver(static_cast<size_t>((1 - normalized.ver)* height))
+		explicit pixel_2d_coord(const pixel_2d_coord_normal& normalized, int width, int height)
+			:hor(static_cast<int32_t>((normalized.hor)* width)), ver(static_cast<int32_t>((1 - normalized.ver)* height))
 		{}
 
 		pixel_2d_coord(const pixel_2d_coord& other)
@@ -246,7 +242,7 @@ namespace BASIC_SHAPES_2D
 		{
 			delta d;
 
-			auto lambda = [](size_t a, size_t b)->int32_t {
+			auto lambda = [](int32_t a, int32_t b)->int32_t {
 				return a - b;
 			};
 
@@ -259,9 +255,8 @@ namespace BASIC_SHAPES_2D
 		{
 			delta result;
 
-			auto lambda = [](int32_t a, int32_t b)->size_t {
+			auto lambda = [](int32_t a, int32_t b)->int32_t {
 				int32_t temp = a + b;
-				if (temp < 0)temp = 0;
 				return temp;
 			};
 

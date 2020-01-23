@@ -27,14 +27,14 @@ namespace TEST_SCREEN
 			};
 
 			pixel_2d_coord corner_coord;
-			size_t w;
-			size_t h;
+			int32_t w;
+			int32_t h;
 
 			ScreenWindow()
 				:corner_coord(), w(0), h(0)
 			{}
 
-			ScreenWindow(const pixel_2d_coord& corner_coord, size_t w, size_t h)
+			ScreenWindow(const pixel_2d_coord& corner_coord, int32_t w, int32_t h)
 				:corner_coord(corner_coord)
 				, w(w)
 				, h(h)
@@ -42,8 +42,8 @@ namespace TEST_SCREEN
 
 			ScreenWindow(const ScalingWindow& window)
 				:corner_coord(pixel_2d_coord{ window.corner_coord, Screen::SCREEN_WIDTH, Screen::SCREEN_HEIGHT })
-				, w(static_cast<size_t>(window.w* Screen::SCREEN_WIDTH))
-				, h(static_cast<size_t>(window.h* Screen::SCREEN_HEIGHT))
+				, w(static_cast<int32_t>(window.w* Screen::SCREEN_WIDTH))
+				, h(static_cast<int32_t>(window.h* Screen::SCREEN_HEIGHT))
 			{}
 
 			ScreenWindow(const ScreenWindow& other)
